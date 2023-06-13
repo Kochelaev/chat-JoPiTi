@@ -2,7 +2,6 @@
 #define USER_H
 
 #include <QString>
-#include <QTextDocumentWriter>
 
 namespace app {
 
@@ -16,7 +15,6 @@ public:
 
 protected:
     QString name;
-    QTextDocumentWriter writer;
     const QString filename = "userInfo";
     const static qint64 maxNameLength = 20;
 

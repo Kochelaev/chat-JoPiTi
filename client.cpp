@@ -6,9 +6,10 @@
 #include <QTime>
 #include <QPushButton>
 
-
-Client::Client(const QString& strHost, int nPort, QWidget* pwgt/*=0*/)
+Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
+    : QWidget(parent)
 {
+    QTcpSocket socket;
     m_pTcpSocket = new QTcpSocket(this);
 
     m_pTcpSocket->connectToHost(strHost, nPort);
@@ -89,4 +90,11 @@ void Client::slotSentToServer()
 void Client::slotConnected()
 {
     m_ptxtInfo->append("Установка соединения...");
+}
+
+Client::~Client()
+{
+    qDebug() << "Client Destruct";
+    m_pTcpSocket->disconnectFromHost();
+    emit m_pTcpSocket->disconnected();
 }

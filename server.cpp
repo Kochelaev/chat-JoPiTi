@@ -35,10 +35,13 @@ Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
 {
     qDebug()<<"slot new connection";
     QTcpSocket* pClientSocket = m_ptcpServer->nextPendingConnection();
+    activeConnections += pClientSocket;
 
     connect(pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));
+    connect(pClientSocket, SIGNAL(disconnected()), this, SLOT(slotClientDisconnect()));
     connect(pClientSocket, SIGNAL(readyRead()), this, SLOT(slotReadClient()));
 
+    qDebug()<<"Соединие с сервером установлено!";
     sendTOClient(pClientSocket, "Соединие с сервером установлено!");
 }
 
@@ -69,7 +72,7 @@ void Server::slotReadClient()
 
         m_nNExtBlockSize = 0;
 
-        sendTOClient(pClientSocket, str);
+        sendToAll(str);
     }
 }
 
@@ -84,4 +87,24 @@ void Server::sendTOClient(QTcpSocket* pSocket, const QString& str)
     out << quint16(arrBlock.size() - sizeof(quint16));
 
     pSocket->write(arrBlock);
+}
+
+void Server::sendToAll(const QString &str)
+{
+    foreach (auto client, activeConnections) {
+        qDebug() << "send to all";
+        sendTOClient(client, str);
+    }
+}
+
+
+void Server::slotClientDisconnect()
+{
+    qDebug() << "client disc";
+    QTcpSocket* pClientSocket = (QTcpSocket*)sender();
+    auto iterator = qFind(activeConnections.begin(), activeConnections.end(), pClientSocket);
+    if (iterator != activeConnections.end()) {
+        activeConnections.erase(iterator);
+        qDebug() << "client Disconnetcet";
+    }
 }

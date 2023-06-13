@@ -6,18 +6,22 @@
 #include <iostream>
 #include "registerform.h"
 #include "appform.h"
+#include "serveripform.h"
+#include "client.h"
+#include "server.h"
 
 using namespace app;
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    Widget* mainWidget = new Widget();
+
+    Widget mainWidget;
 
     if (User::instance().checkName()) {
-        mainWidget->show();
+        mainWidget.show();
     } else {
-        RegisterForm* regForm = new RegisterForm(mainWidget);
+        RegisterForm* regForm = new RegisterForm(&mainWidget);
         regForm->show();
     }
 

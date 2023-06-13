@@ -32,6 +32,7 @@ SOURCES += \
     registerform.cpp \
     server.cpp \
     client.cpp \
+    serveripform.cpp
 
 HEADERS += \
         widget.h \
@@ -39,7 +40,12 @@ HEADERS += \
     registerform.h \
     server.h\
     client.h\
+    serveripform.h
 
 FORMS += \
         widget.ui \
     registerform.ui \
+    serveripform.ui
+
+RESOURCES += \
+    resource.qrc

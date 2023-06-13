@@ -18,9 +18,10 @@ private:
     quint16 m_nNExtBlockSize;
 
 public:
-    Client(const QString& strHost, int nPort, QWidget* pwgt=0);
+    Client(const QString& strHost, int nPort, QWidget* parent= 0);
+    ~Client();
 
-private slots:
+public slots:
     void slotReadyRead ();
     void slotError(QAbstractSocket::SocketError);
     void slotSentToServer();

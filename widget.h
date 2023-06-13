@@ -2,6 +2,8 @@
 #define WIDGET_H
 
 #include <QWidget>
+#include "serveripform.h"
+#include "registerform.h"
 
 namespace Ui {
 class Widget;
