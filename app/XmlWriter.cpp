@@ -2,6 +2,10 @@
 #include <QDebug>
 #include <QtXml>
 #include <app/user.h>
+#include <QString>
+#include "enum/MessageType.h"
+
+using namespace Enum;
 
 XmlWriter::XmlWriter()
 {
@@ -25,7 +29,7 @@ QString XmlWriter::PrepareClientMessage(const QString &messageText)
 QString XmlWriter::ClientName()
 {
     QDomDocument doc;
-    QDomElement elem = doc.createElement("sendClientName");
+    QDomElement elem = doc.createElement(MessageType::sendName);
     elem.setAttribute("name", User::instance().getName());
 
     doc.appendChild(elem);

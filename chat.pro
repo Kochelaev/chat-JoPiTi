@@ -33,7 +33,8 @@ SOURCES += \
     server.cpp \
     client.cpp \
     serveripform.cpp \
-    app/XmlWriter.cpp
+    app/XmlWriter.cpp \
+    enum/MessageType.cpp
 
 HEADERS += \
         widget.h \
@@ -42,7 +43,8 @@ HEADERS += \
     server.h\
     client.h\
     serveripform.h \
-    app/XmlWriter.h
+    app/XmlWriter.h \
+    enum/MessageType.h
 
 FORMS += \
         widget.ui \

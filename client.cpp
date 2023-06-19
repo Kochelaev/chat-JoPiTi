@@ -85,19 +85,8 @@ void Client::slotError(QAbstractSocket::SocketError err)
 void Client::slotConnected()
 {
     m_ptxtInfo->append("Установка соединения...");
-    QByteArray arrBlock;
-    QDataStream out (&arrBlock, QIODevice::WriteOnly);
-    QString outStr = XmlWriter::ClientName();
-
-    out.setVersion(QDataStream::Qt_5_11);
-    out << quint16(0) << QTime::currentTime() << outStr;
-
-
-    out.device()->seek(0);
-    out << quint16(arrBlock.size() - sizeof(quint16));
-
-    m_pTcpSocket->write(arrBlock);
-    m_ptxtInput->setText("");
+    QString xmlClientName = XmlWriter::ClientName();
+    sendToServer(xmlClientName);
 }
 
 void Client::sendToServer(QString message)
