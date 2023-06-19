@@ -32,7 +32,8 @@ SOURCES += \
     registerform.cpp \
     server.cpp \
     client.cpp \
-    serveripform.cpp
+    serveripform.cpp \
+    app/XmlWriter.cpp
 
 HEADERS += \
         widget.h \
@@ -40,7 +41,8 @@ HEADERS += \
     registerform.h \
     server.h\
     client.h\
-    serveripform.h
+    serveripform.h \
+    app/XmlWriter.h
 
 FORMS += \
         widget.ui \

@@ -5,6 +5,9 @@
 #include <QLabel>
 #include <QTime>
 #include <QPushButton>
+#include <app/XmlWriter.h>
+
+using namespace app;
 
 Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     : QWidget(parent)
@@ -23,8 +26,8 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     m_ptxtInfo->setReadOnly(true);
 
     QPushButton* pcmd = new QPushButton("&Отправить");
-    connect(pcmd, SIGNAL(clicked()), SLOT(slotSentToServer()));
-    connect(m_ptxtInput, SIGNAL(returnPressed()), this, SLOT(slotSentToServer()));
+    connect(pcmd, SIGNAL(clicked()), SLOT(slotSentMessage()));
+    connect(m_ptxtInput, SIGNAL(returnPressed()), this, SLOT(slotSentMessage()));
 
     //Layout setup
     QVBoxLayout* pvbxLayout = new QVBoxLayout;
@@ -35,10 +38,16 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     setLayout(pvbxLayout);
 }
 
+Client::~Client()
+{
+    qDebug() << "Client Destruct";
+    m_pTcpSocket->disconnectFromHost();
+}
+
 void Client::slotReadyRead()
 {
     QDataStream in (m_pTcpSocket);
-    in.setVersion(QDataStream::Qt_5_3);
+    in.setVersion(QDataStream::Qt_5_11);
 
     for(;;) {
         if (!m_nNExtBlockSize) {
@@ -73,12 +82,16 @@ void Client::slotError(QAbstractSocket::SocketError err)
     m_ptxtInfo->append(strError);
 }
 
-void Client::slotSentToServer()
+void Client::slotConnected()
 {
+    m_ptxtInfo->append("Установка соединения...");
     QByteArray arrBlock;
     QDataStream out (&arrBlock, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_2);  // QT_5_2?
-    out << quint16(0) << QTime::currentTime() << m_ptxtInput->text();
+    QString outStr = XmlWriter::ClientName();
+
+    out.setVersion(QDataStream::Qt_5_11);
+    out << quint16(0) << QTime::currentTime() << outStr;
+
 
     out.device()->seek(0);
     out << quint16(arrBlock.size() - sizeof(quint16));
@@ -87,14 +100,25 @@ void Client::slotSentToServer()
     m_ptxtInput->setText("");
 }
 
-void Client::slotConnected()
+void Client::sendToServer(QString message)
 {
-    m_ptxtInfo->append("Установка соединения...");
+    QByteArray arrBlock;
+    QDataStream out (&arrBlock, QIODevice::WriteOnly);
+
+    out.setVersion(QDataStream::Qt_5_11);
+    out << quint16(0) << QTime::currentTime() << message;
+
+    out.device()->seek(0);
+    out << quint16(arrBlock.size() - sizeof(quint16));
+
+    m_pTcpSocket->write(arrBlock);
 }
 
-Client::~Client()
+void Client::slotSentMessage()
 {
-    qDebug() << "Client Destruct";
-    m_pTcpSocket->disconnectFromHost();
-    emit m_pTcpSocket->disconnected();
+    QString message = XmlWriter::PrepareClientMessage(m_ptxtInput->text());
+    m_ptxtInput->setText("");
+
+    sendToServer(message);
 }
+

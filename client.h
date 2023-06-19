@@ -21,10 +21,13 @@ public:
     Client(const QString& strHost, int nPort, QWidget* parent= 0);
     ~Client();
 
+public:
+    void sendToServer(QString message);
+
 public slots:
     void slotReadyRead ();
     void slotError(QAbstractSocket::SocketError);
-    void slotSentToServer();
+    void slotSentMessage();
     void slotConnected ();
 };
 

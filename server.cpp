@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QTime>
 #include <QTcpServer>
+#include <app/XmlWriter.h>
 
 Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
                                              , m_nNExtBlockSize(0)
@@ -50,7 +51,7 @@ void Server::slotReadClient()
     QTcpSocket* pClientSocket = (QTcpSocket*)sender();
     QDataStream in (pClientSocket);
 
-    in.setVersion(QDataStream::Qt_5_3);
+    in.setVersion(QDataStream::Qt_5_11);
     for (;;) {
         if (!m_nNExtBlockSize) {
             if (pClientSocket->bytesAvailable() < sizeof(quint16)) {
@@ -80,7 +81,8 @@ void Server::sendTOClient(QTcpSocket* pSocket, const QString& str)
 {
     QByteArray arrBlock;
     QDataStream out(&arrBlock, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_3);
+
+    out.setVersion(QDataStream::Qt_5_11);
     out << quint16(0) << QTime::currentTime() << str;
 
     out.device()->seek(0);
