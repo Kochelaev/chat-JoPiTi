@@ -5,16 +5,14 @@
 
 namespace app {
 
-class XmlWriter
-{
-public:
-    XmlWriter();
+    class XmlWriter
+    {
+    public:
+        XmlWriter();
 
-    static QString PrepareClientMessage(const QString &messageText);
-    static QString ClientName();
-
-
-};
+        static QString PrepareClientMessage(const QString &messageText, QString name = "");
+        static QString ClientName();
+    };
 
 }
 

@@ -5,6 +5,10 @@
 #include <QTime>
 #include <QTcpServer>
 #include <app/XmlWriter.h>
+#include "app/XmlReader.h"
+#include "enum/MessageType.h"
+
+using namespace Enum;
 
 Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
                                              , m_nNExtBlockSize(0)
@@ -25,9 +29,13 @@ Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
     m_ptxt = new QTextEdit;
     m_ptxt->setReadOnly(true);
 
+    m_nameList = new QTextEdit("<H4>Пользователи в сети: <br></H4>");
+    m_nameList->setReadOnly(true);
+
     //layout setup
     QVBoxLayout* pvbxLayout = new QVBoxLayout;
     pvbxLayout->addWidget(new QLabel("<H1>Сервер</H1>"));
+    pvbxLayout->addWidget(m_nameList);
     pvbxLayout->addWidget(m_ptxt);
     setLayout(pvbxLayout);
 }
@@ -38,7 +46,7 @@ Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
     QTcpSocket* pClientSocket = m_ptcpServer->nextPendingConnection();
     activeConnections += pClientSocket;
 
-    connect(pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));
+//    connect(pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));
     connect(pClientSocket, SIGNAL(disconnected()), this, SLOT(slotClientDisconnect()));
     connect(pClientSocket, SIGNAL(readyRead()), this, SLOT(slotReadClient()));
 
@@ -69,9 +77,11 @@ void Server::slotReadClient()
         in >> time >> str;
 
         QString strMessage = time.toString() + ": " + str;
-        m_ptxt->append(strMessage);
+        m_ptxt->append(str);
 
         m_nNExtBlockSize = 0;
+
+        requestProcessing(str, pClientSocket);
 
         sendToAll(str);
     }
@@ -99,14 +109,59 @@ void Server::sendToAll(const QString &str)
     }
 }
 
+void Server::requestProcessing(const QString &in, QTcpSocket* sender)
+{
+    QString messageType = app::XmlReader::getMessageType(in);
+
+    if (messageType == MessageType::sendName) {
+        this->processSendClientName(in, sender);
+    }else if (messageType == MessageType::message) {
+        this->processMessage(in, sender);
+    }
+}
+
+void Server::processMessage(const QString &in, QTcpSocket *sender)
+{
+    QString name = clientNames[sender];
+    QString text = app::XmlReader::getMessageText(in);
+    QString xmlMessage = app::XmlWriter::PrepareClientMessage(text, name);
+    qDebug() << "process message: " << xmlMessage;
+    sendToAll(xmlMessage);
+
+}
+
+void Server::processSendClientName(const QString &in, QTcpSocket *sender)
+{
+    QString name = app::XmlReader::getClientName(in);
+
+    clientNames[sender] = name;
+    refreshNameList();
+}
+
+void Server::refreshNameList()
+{
+    QString names = "";
+    foreach (QString name, clientNames) {
+        names += name + "\n";
+    }
+    m_nameList->setText(names);
+}
 
 void Server::slotClientDisconnect()
 {
     qDebug() << "client disc";
     QTcpSocket* pClientSocket = (QTcpSocket*)sender();
-    auto iterator = qFind(activeConnections.begin(), activeConnections.end(), pClientSocket);
+
+    auto iterator = std::find(activeConnections.begin(), activeConnections.end(), pClientSocket);
     if (iterator != activeConnections.end()) {
         activeConnections.erase(iterator);
-        qDebug() << "client Disconnetcet";
     }
+
+    auto mapIterator = clientNames.find(pClientSocket);
+    if (mapIterator != clientNames.end()) {
+        clientNames.erase(mapIterator);
+    }
+
+    refreshNameList();
 }
+
