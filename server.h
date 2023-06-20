@@ -26,6 +26,7 @@ private:
     void processSendClientName(const QString& in, QTcpSocket* sender);
 
     void refreshNameList();
+    void sendNameList();
 
 public:
     Server(int nPort, QWidget* pwgt = 0);

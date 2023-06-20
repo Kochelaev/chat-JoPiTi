@@ -9,6 +9,7 @@
 #include "enum/MessageType.h"
 
 using namespace Enum;
+using namespace app;
 
 Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
                                              , m_nNExtBlockSize(0)
@@ -42,7 +43,6 @@ Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
 
 /*virtual*/ void Server::slotNewConnection()
 {
-    qDebug()<<"slot new connection";
     QTcpSocket* pClientSocket = m_ptcpServer->nextPendingConnection();
     activeConnections += pClientSocket;
 
@@ -51,7 +51,7 @@ Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
     connect(pClientSocket, SIGNAL(readyRead()), this, SLOT(slotReadClient()));
 
     qDebug()<<"Соединие с сервером установлено!";
-    sendTOClient(pClientSocket, "Соединие с сервером установлено!");
+//    sendTOClient(pClientSocket, "Соединие с сервером установлено!");
 }
 
 void Server::slotReadClient()
@@ -83,7 +83,7 @@ void Server::slotReadClient()
 
         requestProcessing(str, pClientSocket);
 
-        sendToAll(str);
+//        sendToAll(str);
     }
 }
 
@@ -104,7 +104,6 @@ void Server::sendTOClient(QTcpSocket* pSocket, const QString& str)
 void Server::sendToAll(const QString &str)
 {
     foreach (auto client, activeConnections) {
-        qDebug() << "send to all";
         sendTOClient(client, str);
     }
 }
@@ -125,9 +124,8 @@ void Server::processMessage(const QString &in, QTcpSocket *sender)
     QString name = clientNames[sender];
     QString text = app::XmlReader::getMessageText(in);
     QString xmlMessage = app::XmlWriter::PrepareClientMessage(text, name);
-    qDebug() << "process message: " << xmlMessage;
-    sendToAll(xmlMessage);
 
+    sendToAll(xmlMessage);
 }
 
 void Server::processSendClientName(const QString &in, QTcpSocket *sender)
@@ -135,7 +133,9 @@ void Server::processSendClientName(const QString &in, QTcpSocket *sender)
     QString name = app::XmlReader::getClientName(in);
 
     clientNames[sender] = name;
+
     refreshNameList();
+    sendNameList();
 }
 
 void Server::refreshNameList()
@@ -145,6 +145,12 @@ void Server::refreshNameList()
         names += name + "\n";
     }
     m_nameList->setText(names);
+}
+
+void Server::sendNameList()
+{
+    QString nameList = XmlWriter::createNameList(clientNames);
+    sendToAll(nameList);
 }
 
 void Server::slotClientDisconnect()
@@ -163,5 +169,6 @@ void Server::slotClientDisconnect()
     }
 
     refreshNameList();
+    sendNameList();
 }
 

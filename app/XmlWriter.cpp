@@ -43,3 +43,4 @@ QString XmlWriter::ClientName()
 
     return doc.toString();
 }
+

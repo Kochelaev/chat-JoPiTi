@@ -2,6 +2,8 @@
 #define XMLWRITER_H
 
 #include <QString>
+#include <QtXml>
+#include "enum/MessageType.h"
 
 namespace app {
 
@@ -12,8 +14,25 @@ namespace app {
 
         static QString PrepareClientMessage(const QString &messageText, QString name = "");
         static QString ClientName();
-    };
 
+        template <typename container>
+        static QString createNameList(const container &names) //const &
+        {
+            QDomDocument doc;
+            QDomElement parrentElem = doc.createElement(Enum::MessageType::namesList);
+            foreach (QString name, names) {
+                QDomText domText= doc.createTextNode(name);
+                QDomElement childElem = doc.createElement("name");
+                childElem.appendChild(domText);
+
+                parrentElem.appendChild(childElem);
+            }
+            doc.appendChild(parrentElem);
+
+            return doc.toString();
+        }
+
+    };
 }
 
 using namespace app;

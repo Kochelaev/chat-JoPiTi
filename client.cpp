@@ -65,8 +65,10 @@ void Client::slotReadyRead()
         QString str;
         in >> time >> str;
 
-        m_ptxtInfo->append(time.toString() + ": " + str);
         m_nNExtBlockSize = 0;
+
+        m_ptxtInfo->append(time.toString() + ": " + str);
+
     }
 }
 
@@ -105,6 +107,10 @@ void Client::sendToServer(QString message)
 
 void Client::slotSentMessage()
 {
+    if (m_ptxtInput->text().isEmpty()) {
+        return;
+    }
+
     QString message = XmlWriter::PrepareClientMessage(m_ptxtInput->text());
     m_ptxtInput->setText("");
 
