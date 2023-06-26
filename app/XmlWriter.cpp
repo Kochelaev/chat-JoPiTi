@@ -10,7 +10,7 @@ using namespace Enum;
 
 XmlWriter::XmlWriter()
 {
-    qDebug() << "Xml";
+
 }
 
 QString XmlWriter::PrepareClientMessage(const QString &messageText, QString name /*= ""*/)

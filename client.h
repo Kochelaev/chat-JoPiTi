@@ -2,7 +2,7 @@
 #define CLIENT_H
 
 #include <QObject>
-#include <QWidget>
+#include <QtWidgets>
 #include <QTcpSocket>
 
 class QTextEdit;
@@ -13,9 +13,16 @@ class Client : public QWidget
     Q_OBJECT
 private:
     QTcpSocket* m_pTcpSocket;
-    QTextEdit* m_ptxtInfo;
-    QLineEdit* m_ptxtInput;
     quint16 m_nNExtBlockSize;
+
+    QTextEdit* m_messageList;
+    QTextEdit* m_textEdit;
+    QPushButton* m_pushButton;
+    QFrame* m_buttonFrame;
+    QTextEdit* m_nameList;
+
+    QBoxLayout* m_messageLayout;
+    QSplitter* m_splitter;
 
 public:
     Client(const QString& strHost, int nPort, QWidget* parent= 0);
@@ -23,6 +30,14 @@ public:
 
 public:
     void sendToServer(QString message);
+
+protected:
+    virtual bool eventFilter(QObject *obj, QEvent *event);
+
+protected:
+    void requestProcessed(const QString &message);
+    void messageProcessed(const QString &message);
+    void namesListProcessed(const QString &message);
 
 public slots:
     void slotReadyRead ();

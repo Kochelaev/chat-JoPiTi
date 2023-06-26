@@ -82,8 +82,6 @@ void Server::slotReadClient()
         m_nNExtBlockSize = 0;
 
         requestProcessing(str, pClientSocket);
-
-//        sendToAll(str);
     }
 }
 
@@ -112,9 +110,9 @@ void Server::requestProcessing(const QString &in, QTcpSocket* sender)
 {
     QString messageType = app::XmlReader::getMessageType(in);
 
-    if (messageType == MessageType::sendName) {
+    if (messageType == Enum::MessageType::sendName) {
         this->processSendClientName(in, sender);
-    }else if (messageType == MessageType::message) {
+    }else if (messageType == Enum::MessageType::message) {
         this->processMessage(in, sender);
     }
 }

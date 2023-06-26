@@ -13,6 +13,7 @@ namespace app {
         static QString getMessageType(const QString& message);
         static QString getClientName(const QString& message);
         static QString getMessageText(const QString& in);
+        static QVector<QString> getNamesList(const QString& message);
     };
 }
 

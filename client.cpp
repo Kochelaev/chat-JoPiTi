@@ -5,37 +5,58 @@
 #include <QLabel>
 #include <QTime>
 #include <QPushButton>
-#include <app/XmlWriter.h>
+#include "app/XmlWriter.h"
+#include "app/XmlReader.h"
+#include "enum/MessageType.h"
 
 using namespace app;
 
 Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     : QWidget(parent)
 {
-    QTcpSocket socket;
     m_pTcpSocket = new QTcpSocket(this);
+
+    m_messageList = new QTextEdit();
+    m_textEdit = new QTextEdit();
+    m_pushButton = new QPushButton();
+    m_nameList = new QTextEdit();
+    m_splitter = new QSplitter(Qt::Horizontal);
 
     m_pTcpSocket->connectToHost(strHost, nPort);
     connect(m_pTcpSocket, SIGNAL(connected()), SLOT(slotConnected()));
     connect(m_pTcpSocket, SIGNAL(readyRead()), SLOT(slotReadyRead()));
     connect(m_pTcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotError(QAbstractSocket::SocketError)));
 
-    m_ptxtInfo = new QTextEdit;
-    m_ptxtInput = new QLineEdit;
+    connect(m_pushButton, SIGNAL(clicked()), SLOT(slotSentMessage()));
+    m_textEdit->installEventFilter(this);
 
-    m_ptxtInfo->setReadOnly(true);
+    m_splitter->addWidget(m_messageList);
+    m_splitter->addWidget(m_nameList);
+    QList<int> sizes;
+    sizes.push_front(200);
+    sizes.push_back(50);
+    m_splitter->setSizes(sizes);
+    m_nameList->setReadOnly(true);
+    m_messageList->setReadOnly(true);
 
-    QPushButton* pcmd = new QPushButton("&Отправить");
-    connect(pcmd, SIGNAL(clicked()), SLOT(slotSentMessage()));
-    connect(m_ptxtInput, SIGNAL(returnPressed()), this, SLOT(slotSentMessage()));
+    m_textEdit->setFixedHeight(100);
+    m_pushButton->setIcon(QIcon(":/img/img/send.png"));
+    m_pushButton->setIconSize(QSize(20, 20));
 
-    //Layout setup
-    QVBoxLayout* pvbxLayout = new QVBoxLayout;
-    pvbxLayout->addWidget(new QLabel("<H1>Клиент</H1>"));
-    pvbxLayout->addWidget(m_ptxtInfo);
-    pvbxLayout->addWidget(m_ptxtInput);
-    pvbxLayout->addWidget(pcmd);
-    setLayout(pvbxLayout);
+    QBoxLayout* textEditeLayout = new QBoxLayout(QBoxLayout::RightToLeft);
+    textEditeLayout->addWidget(m_pushButton, 0, Qt::AlignRight | Qt::AlignBottom);
+    textEditeLayout->setContentsMargins(0,0,0,0);
+    m_textEdit->setLayout(textEditeLayout);
+
+    QBoxLayout* messageNamelayout = new QBoxLayout(QBoxLayout::LeftToRight);
+    messageNamelayout->setContentsMargins(0,0,0,0);
+    messageNamelayout->addWidget(m_splitter);
+
+    QVBoxLayout* layout = new QVBoxLayout(this);
+    layout->addLayout(messageNamelayout);
+    layout->addWidget(m_textEdit);
+    setLayout(layout);
+
 }
 
 Client::~Client()
@@ -67,8 +88,9 @@ void Client::slotReadyRead()
 
         m_nNExtBlockSize = 0;
 
-        m_ptxtInfo->append(time.toString() + ": " + str);
+//        m_messageList->append(time.toString() + ": " + str);
 
+        this->requestProcessed(str);
     }
 }
 
@@ -81,12 +103,12 @@ void Client::slotError(QAbstractSocket::SocketError err)
                             QString(m_pTcpSocket->errorString())
     );
 
-    m_ptxtInfo->append(strError);
+    m_messageList->append(strError);
 }
 
 void Client::slotConnected()
 {
-    m_ptxtInfo->append("Установка соединения...");
+    m_messageList->append("Установка соединения...");
     QString xmlClientName = XmlWriter::ClientName();
     sendToServer(xmlClientName);
 }
@@ -105,14 +127,47 @@ void Client::sendToServer(QString message)
     m_pTcpSocket->write(arrBlock);
 }
 
+bool Client::eventFilter(QObject *obj, QEvent *event) //textEdit pressEnter event
+{
+    if (event->type() == QEvent::Type::KeyPress) {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+
+        if (keyEvent->key() == 16777220 && keyEvent->modifiers() == Qt::NoModifier) {
+            this->slotSentMessage();
+            return true;
+        }
+    }
+    return false;
+}
+
+void Client::requestProcessed(const QString &message)
+{
+    QString messageType =  app::XmlReader::getMessageType(message);
+    if (messageType == Enum::MessageType::message) {
+        this->messageProcessed(message);
+    } else if (messageType == Enum::MessageType::namesList) {
+        this->namesListProcessed(message);
+    }
+}
+
+void Client::messageProcessed(const QString &message)
+{
+
+}
+
+void Client::namesListProcessed(const QString &message)
+{
+    QVector<QString> namesList = app::XmlReader::getNamesList(message);
+}
+
 void Client::slotSentMessage()
 {
-    if (m_ptxtInput->text().isEmpty()) {
+    if (m_textEdit->toPlainText().isEmpty()) {
         return;
     }
 
-    QString message = XmlWriter::PrepareClientMessage(m_ptxtInput->text());
-    m_ptxtInput->setText("");
+    QString message = XmlWriter::PrepareClientMessage(m_textEdit->toPlainText());
+    m_textEdit->setText("");
 
     sendToServer(message);
 }

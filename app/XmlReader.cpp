@@ -50,4 +50,9 @@ QString XmlReader::getMessageText(const QString &message)
     return messageElem.text();
 }
 
+QVector<QString> XmlReader::getNamesList(const QString &message)
+{
+    qDebug() << message;
+}
+
 

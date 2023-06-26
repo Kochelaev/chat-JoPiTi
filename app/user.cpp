@@ -45,3 +45,5 @@ QString User::getName()
     return this->name;
 }
 
+
+
