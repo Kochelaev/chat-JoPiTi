@@ -27,7 +27,6 @@ QString XmlReader::getMessageType(const QString &message)
     } while (!reader.atEnd());
 
     return result;
-
 }
 
 QString XmlReader::getClientName(const QString &message)
@@ -52,7 +51,39 @@ QString XmlReader::getMessageText(const QString &message)
 
 QVector<QString> XmlReader::getNamesList(const QString &message)
 {
-    qDebug() << message;
+    QVector<QString> result;
+
+    QDomDocument doc;
+    doc.setContent(message);
+
+    QDomElement namesListElem = doc.firstChildElement(Enum::MessageType::namesList);
+    QDomNodeList namesNodeList = namesListElem.childNodes();
+    for(int i=0; i <= namesNodeList.size(); i++) {
+        QDomNode item = namesNodeList.item(i);
+        if (item.isElement()) {
+            result += item.toElement().text();
+        }
+    }
+
+    return result;
+}
+
+QString XmlReader::getHtmlMessage(const QString &message)
+{
+    QDomDocument doc;
+    doc.setContent(message);
+
+    QDomElement messageElem = doc.firstChildElement(Enum::MessageType::message);
+    QString time = messageElem.attribute("time");
+    QString name = messageElem.attribute("name");
+    QString text = messageElem.text();
+
+    QString htmlMessage =
+            "<b class=\"time\">" + time +
+            "</b> <b class=\"name\">" + name +
+            ":</b> <b class=\"messsage\">" + text + "</b>";
+
+    return htmlMessage;
 }
 
 

@@ -108,7 +108,6 @@ void Client::slotError(QAbstractSocket::SocketError err)
 
 void Client::slotConnected()
 {
-    m_messageList->append("Установка соединения...");
     QString xmlClientName = XmlWriter::ClientName();
     sendToServer(xmlClientName);
 }
@@ -152,12 +151,18 @@ void Client::requestProcessed(const QString &message)
 
 void Client::messageProcessed(const QString &message)
 {
-
+    QString htmlMessage = app::XmlReader::getHtmlMessage(message);
+    m_messageList->append(htmlMessage);
 }
 
 void Client::namesListProcessed(const QString &message)
 {
     QVector<QString> namesList = app::XmlReader::getNamesList(message);
+
+    m_nameList->setPlainText("");
+    foreach (QString name, namesList) {
+        m_nameList->append(name);
+    }
 }
 
 void Client::slotSentMessage()
