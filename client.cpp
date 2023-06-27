@@ -16,10 +16,10 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
 {
     m_pTcpSocket = new QTcpSocket(this);
 
-    m_messageList = new QTextEdit();
+    m_messageList = new QTextBrowser();
     m_textEdit = new QTextEdit();
     m_pushButton = new QPushButton();
-    m_nameList = new QTextEdit();
+    m_nameList = new QListWidget();
     m_splitter = new QSplitter(Qt::Horizontal);
 
     m_pTcpSocket->connectToHost(strHost, nPort);
@@ -36,12 +36,16 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     sizes.push_front(200);
     sizes.push_back(50);
     m_splitter->setSizes(sizes);
-    m_nameList->setReadOnly(true);
     m_messageList->setReadOnly(true);
 
     m_textEdit->setFixedHeight(100);
-    m_pushButton->setIcon(QIcon(":/img/img/send.png"));
+    m_pushButton->setIcon(QIcon(":/img/send.png"));
     m_pushButton->setIconSize(QSize(20, 20));
+
+    QFile styleFile(":/index.css");
+    styleFile.open(QFile::ReadOnly);
+    QString css = QLatin1String(styleFile.readAll());
+    m_messageList->setStyleSheet(css);
 
     QBoxLayout* textEditeLayout = new QBoxLayout(QBoxLayout::RightToLeft);
     textEditeLayout->addWidget(m_pushButton, 0, Qt::AlignRight | Qt::AlignBottom);
@@ -56,7 +60,6 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     layout->addLayout(messageNamelayout);
     layout->addWidget(m_textEdit);
     setLayout(layout);
-
 }
 
 Client::~Client()
@@ -84,11 +87,10 @@ void Client::slotReadyRead()
 
         QTime time;
         QString str;
+        QImage image;
         in >> time >> str;
 
         m_nNExtBlockSize = 0;
-
-//        m_messageList->append(time.toString() + ": " + str);
 
         this->requestProcessed(str);
     }
@@ -131,9 +133,22 @@ bool Client::eventFilter(QObject *obj, QEvent *event) //textEdit pressEnter even
     if (event->type() == QEvent::Type::KeyPress) {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 
-        if (keyEvent->key() == 16777220 && keyEvent->modifiers() == Qt::NoModifier) {
+        Qt::KeyboardModifiers modifers = keyEvent->modifiers();
+        int key = keyEvent->key();
+
+        if ((modifers == Qt::NoModifier || modifers == Qt::KeypadModifier)
+                && (key == 16777220 || key == Qt::Key_Enter)
+                ) {
             this->slotSentMessage();
             return true;
+        }
+
+        if (modifers == Qt::ControlModifier && key == Qt::Key_V) {
+            if (hasImageClip()) {
+                qDebug() << "hasImage";
+                sendImage();
+            }
+            return false;
         }
     }
     return false;
@@ -159,10 +174,37 @@ void Client::namesListProcessed(const QString &message)
 {
     QVector<QString> namesList = app::XmlReader::getNamesList(message);
 
-    m_nameList->setPlainText("");
+    m_nameList->clear();
+
+    m_nameList->setIconSize(QSize(20,20));
+    m_nameList->setSelectionMode(QAbstractItemView::NoSelection);
+    m_nameList->setViewMode(QListView::ListMode);
+
+    QListWidgetItem* item;
+
     foreach (QString name, namesList) {
-        m_nameList->append(name);
+        item = new QListWidgetItem(name, m_nameList);
+        item ->setIcon(QIcon(":/img/user.png"));
     }
+}
+
+bool Client::hasImageClip()
+{
+    const QMimeData* mime = QApplication::clipboard()->mimeData();
+    return mime->hasImage();
+}
+
+void Client::sendImage()
+{
+     QImage image = QApplication::clipboard()->image();
+     qDebug() << image;
+
+
+}
+
+void Client::sendImageFromClip()
+{
+
 }
 
 void Client::slotSentMessage()

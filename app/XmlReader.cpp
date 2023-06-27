@@ -5,6 +5,7 @@
 #include <QtXml>
 #include <QDataStream>
 #include "enum/MessageType.h"
+#include "app/user.h"
 
 using namespace app;
 
@@ -76,12 +77,19 @@ QString XmlReader::getHtmlMessage(const QString &message)
     QDomElement messageElem = doc.firstChildElement(Enum::MessageType::message);
     QString time = messageElem.attribute("time");
     QString name = messageElem.attribute("name");
-    QString text = messageElem.text();
+    QString text = messageElem.text().replace("\n", "<br>");
+
+    QString nameColor;
+    if (name == app::User::instance().getName()) {
+        nameColor = "green";
+    } else {
+        nameColor = "blue";
+    }
 
     QString htmlMessage =
-            "<b class=\"time\">" + time +
-            "</b> <b class=\"name\">" + name +
-            ":</b> <b class=\"messsage\">" + text + "</b>";
+            "<small class=\"time\" style=\"color: #B1B1B1\">" + time +
+            "</small> <b class=\"name\" style=\"color:" + nameColor + "\">" + name +
+            ":</b> <o class=\"messsage\">" + text + "</o>";
 
     return htmlMessage;
 }

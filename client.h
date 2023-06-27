@@ -15,11 +15,11 @@ private:
     QTcpSocket* m_pTcpSocket;
     quint16 m_nNExtBlockSize;
 
-    QTextEdit* m_messageList;
+    QTextBrowser* m_messageList;
     QTextEdit* m_textEdit;
     QPushButton* m_pushButton;
     QFrame* m_buttonFrame;
-    QTextEdit* m_nameList;
+    QListWidget* m_nameList;
 
     QBoxLayout* m_messageLayout;
     QSplitter* m_splitter;
@@ -38,6 +38,12 @@ protected:
     void requestProcessed(const QString &message);
     void messageProcessed(const QString &message);
     void namesListProcessed(const QString &message);
+
+private:            // Image send methods
+    bool hasImageClip();
+    void sendImage();
+    void sendImageFromClip();
+
 
 public slots:
     void slotReadyRead ();

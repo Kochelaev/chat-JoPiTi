@@ -5,5 +5,8 @@
     </qresource>
     <qresource prefix="/">
         <file>img/image.jpg</file>
+        <file>img/user.png</file>
+        <file>img/send.png</file>
+        <file>index.css</file>
     </qresource>
 </RCC>

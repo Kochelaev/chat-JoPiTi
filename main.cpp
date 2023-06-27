@@ -14,7 +14,12 @@ using namespace app;
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
+
+//    QFile styleFile(":/index.css");
+//    styleFile.open(QFile::ReadOnly);
+//    QString css = QLatin1String(styleFile.readAll());
+//    app.setStyleSheet(css);
 
     Widget mainWidget;
 
@@ -25,5 +30,5 @@ int main(int argc, char *argv[])
         regForm->show();
     }
 
-    return a.exec();
+    return app.exec();
 }
