@@ -16,10 +16,10 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-//    QFile styleFile(":/index.css");
-//    styleFile.open(QFile::ReadOnly);
-//    QString css = QLatin1String(styleFile.readAll());
-//    app.setStyleSheet(css);
+    QFile styleFile(":/index.css");
+    styleFile.open(QFile::ReadOnly);
+    QString css = QLatin1String(styleFile.readAll());
+    app.setStyleSheet(css);
 
     Widget mainWidget;
 

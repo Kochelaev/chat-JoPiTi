@@ -8,6 +8,7 @@
 #include "app/user.h"
 
 using namespace app;
+using namespace Enum;
 
 XmlReader::XmlReader()
 {
@@ -30,12 +31,13 @@ QString XmlReader::getMessageType(const QString &message)
     return result;
 }
 
-QString XmlReader::getClientName(const QString &message)
+QString XmlReader::getClientName(const QString &message, QString messageType)
 {
     QDomDocument doc;
     doc.setContent(message);
 
-    QDomElement nameElement = doc.firstChildElement(Enum::MessageType::sendName);
+    messageType = messageType.isEmpty()? MessageType::sendName : messageType;
+    QDomElement nameElement = doc.firstChildElement(messageType);
 
     return nameElement.attribute("name");
 }
@@ -69,12 +71,14 @@ QVector<QString> XmlReader::getNamesList(const QString &message)
     return result;
 }
 
-QString XmlReader::getHtmlMessage(const QString &message)
+QString XmlReader::getHtmlMessage(const QString &message, QString messageType)
 {
     QDomDocument doc;
     doc.setContent(message);
 
-    QDomElement messageElem = doc.firstChildElement(Enum::MessageType::message);
+    messageType = messageType.isEmpty()? MessageType::message : messageType;
+
+    QDomElement messageElem = doc.firstChildElement(messageType);
     QString time = messageElem.attribute("time");
     QString name = messageElem.attribute("name");
     QString text = messageElem.text().replace("\n", "<br>");
@@ -87,11 +91,22 @@ QString XmlReader::getHtmlMessage(const QString &message)
     }
 
     QString htmlMessage =
-            "<small class=\"time\" style=\"color: #B1B1B1\">" + time +
+            "<p style=\"margin-left: 0px;\"> <small class=\"time\" style=\"color: #B1B1B1\">" + time +
             "</small> <b class=\"name\" style=\"color:" + nameColor + "\">" + name +
-            ":</b> <o class=\"messsage\">" + text + "</o>";
+            ":</b> <b class=\"messsage\">" + text + "</b> </p>";
 
     return htmlMessage;
+}
+
+QString XmlReader::getMessageTime(const QString & message, QString messageType)
+{
+    QDomDocument doc;
+    doc.setContent(message);
+
+    messageType = messageType.isEmpty()? MessageType::message : messageType;
+    QDomElement messageElem = doc.firstChildElement(messageType);
+    QString time = messageElem.attribute("time");
+    return time;
 }
 
 

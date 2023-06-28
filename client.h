@@ -18,6 +18,7 @@ private:
     QTextBrowser* m_messageList;
     QTextEdit* m_textEdit;
     QPushButton* m_pushButton;
+    QPushButton* m_attachFileButton;
     QFrame* m_buttonFrame;
     QListWidget* m_nameList;
 
@@ -29,21 +30,20 @@ public:
     ~Client();
 
 public:
-    void sendToServer(QString message);
+    void sendToServer(QString message, QImage image = QImage());
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);
 
 protected:
-    void requestProcessed(const QString &message);
+    void requestProcessed(const QString &message, QImage &image);
     void messageProcessed(const QString &message);
     void namesListProcessed(const QString &message);
+    void imageProcessed(const QString &messsage, QImage &image);
 
 private:            // Image send methods
     bool hasImageClip();
-    void sendImage();
-    void sendImageFromClip();
-
+    void sendImage(QImage image);
 
 public slots:
     void slotReadyRead ();

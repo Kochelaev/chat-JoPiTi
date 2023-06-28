@@ -8,6 +8,7 @@ namespace Enum {
         static const QString message = "message";
         static const QString sendName = "sendName";
         static const QString namesList = "namesList";
+        static const QString image = "image";
     }
 }
 

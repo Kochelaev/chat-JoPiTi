@@ -12,8 +12,9 @@ namespace app {
     public:
         XmlWriter();
 
-        static QString PrepareClientMessage(const QString &messageText, QString name = "");
+        static QString PrepareClientMessage(const QString &messageText, QString name = "", QString type = "message");
         static QString ClientName();
+        static QString ImageMessage();
 
         template <typename container>
         static QString createNameList(const container &names) //const &

@@ -13,10 +13,10 @@ XmlWriter::XmlWriter()
 
 }
 
-QString XmlWriter::PrepareClientMessage(const QString &messageText, QString name /*= ""*/)
+QString XmlWriter::PrepareClientMessage(const QString &messageText, QString name, QString type)
 {
     QDomDocument doc;
-    QDomElement elem = doc.createElement("message");
+    QDomElement elem = doc.createElement(type);
 
     elem.appendChild(doc.createTextNode(messageText));
 
@@ -40,6 +40,19 @@ QString XmlWriter::ClientName()
     elem.setAttribute("name", User::instance().getName());
 
     doc.appendChild(elem);
+
+    return doc.toString();
+}
+
+QString XmlWriter::ImageMessage()
+{
+    QDomDocument doc;
+    QDomElement elem = doc.createElement(MessageType::image);
+    elem.setAttribute("name", User::instance().getName());
+
+    doc.appendChild(elem);
+
+    qDebug() << doc.toString();
 
     return doc.toString();
 }

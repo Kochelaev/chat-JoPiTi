@@ -19,11 +19,12 @@ private:
     QMap<QTcpSocket*, QString> clientNames;
 
 private:
-    void sendTOClient(QTcpSocket* pSocket, const QString& str);
-    void sendToAll(const QString& str);
-    void requestProcessing(const QString& in, QTcpSocket* sender);
+    void sendTOClient(QTcpSocket* pSocket, const QString& str, QImage image = QImage());
+    void sendToAll(const QString& str, QImage image = QImage());
+    void requestProcessing(const QString& in, QTcpSocket* sender, QImage image = QImage());
     void processMessage(const QString& in, QTcpSocket* sender);
     void processSendClientName(const QString& in, QTcpSocket* sender);
+    void processImage(const QString& message, QTcpSocket *sender, QImage &image);
 
     void refreshNameList();
     void sendNameList();

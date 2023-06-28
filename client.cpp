@@ -10,6 +10,7 @@
 #include "enum/MessageType.h"
 
 using namespace app;
+using namespace Enum;
 
 Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     : QWidget(parent)
@@ -19,6 +20,7 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     m_messageList = new QTextBrowser();
     m_textEdit = new QTextEdit();
     m_pushButton = new QPushButton();
+    m_attachFileButton = new QPushButton();
     m_nameList = new QListWidget();
     m_splitter = new QSplitter(Qt::Horizontal);
 
@@ -41,14 +43,11 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     m_textEdit->setFixedHeight(100);
     m_pushButton->setIcon(QIcon(":/img/send.png"));
     m_pushButton->setIconSize(QSize(20, 20));
-
-    QFile styleFile(":/index.css");
-    styleFile.open(QFile::ReadOnly);
-    QString css = QLatin1String(styleFile.readAll());
-    m_messageList->setStyleSheet(css);
+    m_attachFileButton->setIcon(QIcon(":/img/sendImage.png"));
+    m_attachFileButton->setIconSize(QSize(20, 20));
 
     QBoxLayout* textEditeLayout = new QBoxLayout(QBoxLayout::RightToLeft);
-    textEditeLayout->addWidget(m_pushButton, 0, Qt::AlignRight | Qt::AlignBottom);
+    textEditeLayout->addWidget(m_attachFileButton, 0, Qt::AlignRight | Qt::AlignBottom);
     textEditeLayout->setContentsMargins(0,0,0,0);
     m_textEdit->setLayout(textEditeLayout);
 
@@ -59,6 +58,7 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->addLayout(messageNamelayout);
     layout->addWidget(m_textEdit);
+    layout->addWidget(m_pushButton);
     setLayout(layout);
 }
 
@@ -88,11 +88,11 @@ void Client::slotReadyRead()
         QTime time;
         QString str;
         QImage image;
-        in >> time >> str;
+        in >> time >> str >> image;
 
         m_nNExtBlockSize = 0;
 
-        this->requestProcessed(str);
+        this->requestProcessed(str, image);
     }
 }
 
@@ -114,13 +114,15 @@ void Client::slotConnected()
     sendToServer(xmlClientName);
 }
 
-void Client::sendToServer(QString message)
+void Client::sendToServer(QString message, QImage image)
 {
     QByteArray arrBlock;
     QDataStream out (&arrBlock, QIODevice::WriteOnly);
 
+    QImage testImage(":/img/user.png"); ///!!!!
+
     out.setVersion(QDataStream::Qt_5_11);
-    out << quint16(0) << QTime::currentTime() << message;
+    out << quint16(0) << QTime::currentTime() << message << image; // !!!!!
 
     out.device()->seek(0);
     out << quint16(arrBlock.size() - sizeof(quint16));
@@ -145,22 +147,29 @@ bool Client::eventFilter(QObject *obj, QEvent *event) //textEdit pressEnter even
 
         if (modifers == Qt::ControlModifier && key == Qt::Key_V) {
             if (hasImageClip()) {
-                qDebug() << "hasImage";
-                sendImage();
+                sendImage(QApplication::clipboard()->image());
             }
             return false;
+        }
+
+        /// debug
+        if (key == Qt::Key_1) {
+            qDebug() << m_messageList->toHtml();
         }
     }
     return false;
 }
 
-void Client::requestProcessed(const QString &message)
+void Client::requestProcessed(const QString &message, QImage &image)
 {
     QString messageType =  app::XmlReader::getMessageType(message);
     if (messageType == Enum::MessageType::message) {
         this->messageProcessed(message);
     } else if (messageType == Enum::MessageType::namesList) {
         this->namesListProcessed(message);
+    } else if (messageType == Enum::MessageType::image) {
+        qDebug() << "image";
+        this->imageProcessed(message, image);
     }
 }
 
@@ -188,23 +197,47 @@ void Client::namesListProcessed(const QString &message)
     }
 }
 
+void Client::imageProcessed(const QString &message, QImage &image)
+{
+    qDebug() <<"message: " << message;
+    QString htmlMessage = app::XmlReader::getHtmlMessage(message, MessageType::image);
+
+    QString name = app::XmlReader::getClientName(message, MessageType::image);
+    QString time = app::XmlReader::getMessageTime(message, MessageType::image);
+
+    QString filePath = QApplication::applicationDirPath()+QDir::separator() +
+            "Data" + QDir::separator() + QDate::currentDate().toString(Qt::SystemLocaleShortDate) + name + time + ".png";
+
+    QFile file;
+    if (file.open(QIODevice::WriteOnly)) {
+        file.close();
+    }
+
+    image.save(filePath);
+
+    int imgHeight = (image.height() < 400)? image.height() : 400;
+    int imgWidth = (image.width() < 400)? image.width() : 400;
+
+
+    htmlMessage += "<p style=\"padding-left: 20px;\"> <img src=\"" + filePath
+            + "\"  height=\"" + QString::number(imgHeight) +
+            "\" width=\"" + QString::number(imgWidth)+ "\" /> </p>";
+
+    qDebug() << htmlMessage;
+
+    m_messageList->append(htmlMessage);
+}
+
 bool Client::hasImageClip()
 {
     const QMimeData* mime = QApplication::clipboard()->mimeData();
     return mime->hasImage();
 }
 
-void Client::sendImage()
+void Client::sendImage(QImage image)
 {
-     QImage image = QApplication::clipboard()->image();
-     qDebug() << image;
-
-
-}
-
-void Client::sendImageFromClip()
-{
-
+     QString message = app::XmlWriter::ImageMessage();
+     sendToServer(message, image);
 }
 
 void Client::slotSentMessage()

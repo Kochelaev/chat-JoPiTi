@@ -46,12 +46,8 @@ Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
     QTcpSocket* pClientSocket = m_ptcpServer->nextPendingConnection();
     activeConnections += pClientSocket;
 
-//    connect(pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));
     connect(pClientSocket, SIGNAL(disconnected()), this, SLOT(slotClientDisconnect()));
     connect(pClientSocket, SIGNAL(readyRead()), this, SLOT(slotReadClient()));
-
-    qDebug()<<"Соединие с сервером установлено!";
-//    sendTOClient(pClientSocket, "Соединие с сервером установлено!");
 }
 
 void Server::slotReadClient()
@@ -74,24 +70,35 @@ void Server::slotReadClient()
 
         QTime time;
         QString str;
-        in >> time >> str;
+        QImage image;
+        in >> time >> str >> image;
+
+//        if (!image.isNull()) {  //!!!!!!
+//            QWidget* w = new QWidget();
+//            QPalette pal;
+//            pal.setBrush(w->backgroundRole(), QBrush(image));
+//            w->setPalette(pal);
+//            w->setAutoFillBackground(true);
+//            w->show();
+//        }
+
 
         QString strMessage = time.toString() + ": " + str;
         m_ptxt->append(str);
 
         m_nNExtBlockSize = 0;
 
-        requestProcessing(str, pClientSocket);
+        requestProcessing(str, pClientSocket, image);
     }
 }
 
-void Server::sendTOClient(QTcpSocket* pSocket, const QString& str)
+void Server::sendTOClient(QTcpSocket* pSocket, const QString& str, QImage image)
 {
     QByteArray arrBlock;
     QDataStream out(&arrBlock, QIODevice::WriteOnly);
 
     out.setVersion(QDataStream::Qt_5_11);
-    out << quint16(0) << QTime::currentTime() << str;
+    out << quint16(0) << QTime::currentTime() << str << image;
 
     out.device()->seek(0);
     out << quint16(arrBlock.size() - sizeof(quint16));
@@ -99,14 +106,14 @@ void Server::sendTOClient(QTcpSocket* pSocket, const QString& str)
     pSocket->write(arrBlock);
 }
 
-void Server::sendToAll(const QString &str)
+void Server::sendToAll(const QString &str, QImage image)
 {
     foreach (auto client, activeConnections) {
-        sendTOClient(client, str);
+        sendTOClient(client, str, image);
     }
 }
 
-void Server::requestProcessing(const QString &in, QTcpSocket* sender)
+void Server::requestProcessing(const QString &in, QTcpSocket* sender, QImage image)
 {
     QString messageType = app::XmlReader::getMessageType(in);
 
@@ -114,6 +121,8 @@ void Server::requestProcessing(const QString &in, QTcpSocket* sender)
         this->processSendClientName(in, sender);
     }else if (messageType == Enum::MessageType::message) {
         this->processMessage(in, sender);
+    } else if (messageType == Enum::MessageType::image) {
+        this->processImage(in, sender, image);
     }
 }
 
@@ -134,6 +143,14 @@ void Server::processSendClientName(const QString &in, QTcpSocket *sender)
 
     refreshNameList();
     sendNameList();
+}
+
+void Server::processImage(const QString &message, QTcpSocket *sender, QImage &image)
+{
+    QString name = clientNames[sender];
+    QString HtmlMessage = app::XmlWriter::PrepareClientMessage("", name, Enum::MessageType::image);
+
+    sendToAll(HtmlMessage, image);
 }
 
 void Server::refreshNameList()

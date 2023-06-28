@@ -8,5 +8,6 @@
         <file>img/user.png</file>
         <file>img/send.png</file>
         <file>index.css</file>
+        <file>img/sendImage.png</file>
     </qresource>
 </RCC>
