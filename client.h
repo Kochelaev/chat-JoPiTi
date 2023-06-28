@@ -46,10 +46,12 @@ private:            // Image send methods
     void sendImage(QImage image);
 
 public slots:
-    void slotReadyRead ();
+    void slotReadyRead();
     void slotError(QAbstractSocket::SocketError);
     void slotSentMessage();
-    void slotConnected ();
+    void slotConnected();
+
+    void slotAttachFile();
 };
 
 #endif // CLIENT_H

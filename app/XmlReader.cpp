@@ -93,7 +93,7 @@ QString XmlReader::getHtmlMessage(const QString &message, QString messageType)
     QString htmlMessage =
             "<p style=\"margin-left: 0px;\"> <small class=\"time\" style=\"color: #B1B1B1\">" + time +
             "</small> <b class=\"name\" style=\"color:" + nameColor + "\">" + name +
-            ":</b> <b class=\"messsage\">" + text + "</b> </p>";
+            ":</b> <o class=\"messsage\">" + text + "</o> </p>";
 
     return htmlMessage;
 }

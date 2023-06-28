@@ -30,6 +30,7 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     connect(m_pTcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotError(QAbstractSocket::SocketError)));
 
     connect(m_pushButton, SIGNAL(clicked()), SLOT(slotSentMessage()));
+    connect(m_attachFileButton, SIGNAL(clicked()), SLOT(slotAttachFile()));
     m_textEdit->installEventFilter(this);
 
     m_splitter->addWidget(m_messageList);
@@ -114,6 +115,15 @@ void Client::slotConnected()
     sendToServer(xmlClientName);
 }
 
+void Client::slotAttachFile()
+{
+    QString filename = QFileDialog::getOpenFileName(0, "Выберите изображение", "", "*.png *.jpg");
+
+    if (!filename.isEmpty()) {
+        this->sendImage(QImage(filename));
+    }
+}
+
 void Client::sendToServer(QString message, QImage image)
 {
     QByteArray arrBlock;
@@ -152,10 +162,7 @@ bool Client::eventFilter(QObject *obj, QEvent *event) //textEdit pressEnter even
             return false;
         }
 
-        /// debug
-        if (key == Qt::Key_1) {
-            qDebug() << m_messageList->toHtml();
-        }
+
     }
     return false;
 }
@@ -168,7 +175,6 @@ void Client::requestProcessed(const QString &message, QImage &image)
     } else if (messageType == Enum::MessageType::namesList) {
         this->namesListProcessed(message);
     } else if (messageType == Enum::MessageType::image) {
-        qDebug() << "image";
         this->imageProcessed(message, image);
     }
 }
@@ -211,6 +217,12 @@ void Client::imageProcessed(const QString &message, QImage &image)
     QFile file;
     if (file.open(QIODevice::WriteOnly)) {
         file.close();
+    }
+    //исправь, объедини с filePath
+    QString dirname = QApplication::applicationDirPath() + QDir::separator() + "Data";
+    QDir fileDir (dirname);
+    if(!fileDir.exists(dirname)) {
+        fileDir.mkdir(dirname);
     }
 
     image.save(filePath);
