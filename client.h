@@ -43,7 +43,9 @@ protected:
 
 private:            // Image send methods
     bool hasImageClip();
+    bool hasFileClip();
     void sendImage(QImage image);
+    void sendFileFromBuffer();
 
 public slots:
     void slotReadyRead();
