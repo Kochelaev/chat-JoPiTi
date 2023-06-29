@@ -52,6 +52,8 @@ public slots:
     void slotConnected();
 
     void slotAttachFile();
+
+    void slotOpenLink(QUrl url);
 };
 
 #endif // CLIENT_H

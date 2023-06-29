@@ -40,6 +40,7 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     sizes.push_back(50);
     m_splitter->setSizes(sizes);
     m_messageList->setReadOnly(true);
+    m_messageList->setOpenLinks(false);
 
     m_textEdit->setFixedHeight(100);
     m_pushButton->setIcon(QIcon(":/img/send.png"));
@@ -61,6 +62,8 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     layout->addWidget(m_textEdit);
     layout->addWidget(m_pushButton);
     setLayout(layout);
+
+    connect(m_messageList, SIGNAL(anchorClicked(QUrl)), this, SLOT(slotOpenLink(QUrl)));
 }
 
 Client::~Client()
@@ -117,11 +120,31 @@ void Client::slotConnected()
 
 void Client::slotAttachFile()
 {
-    QString filename = QFileDialog::getOpenFileName(0, "Выберите изображение", "", "*.png *.jpg");
+    QString filename = QFileDialog::getOpenFileName(0, "Выберите изображение", "", "*.png *.jpg *.jpeg *.bmp").toUtf8();
 
     if (!filename.isEmpty()) {
         this->sendImage(QImage(filename));
     }
+}
+
+void Client::slotOpenLink(QUrl url)
+{
+    QImage img(url.toString());
+
+    if (img.isNull()) {
+        qDebug() << "Img is empty. return";
+        return;
+    }
+
+    QWidget* imgWidget = new QWidget();
+    QPalette pal;
+    pal.setBrush(imgWidget->backgroundRole(), QBrush(img));
+
+    imgWidget->setPalette(pal);
+    imgWidget->setAutoFillBackground(true);
+
+    imgWidget->resize(img.size());
+    imgWidget->show();
 }
 
 void Client::sendToServer(QString message, QImage image)
@@ -161,8 +184,6 @@ bool Client::eventFilter(QObject *obj, QEvent *event) //textEdit pressEnter even
             }
             return false;
         }
-
-
     }
     return false;
 }
@@ -205,14 +226,14 @@ void Client::namesListProcessed(const QString &message)
 
 void Client::imageProcessed(const QString &message, QImage &image)
 {
-    qDebug() <<"message: " << message;
     QString htmlMessage = app::XmlReader::getHtmlMessage(message, MessageType::image);
 
     QString name = app::XmlReader::getClientName(message, MessageType::image);
     QString time = app::XmlReader::getMessageTime(message, MessageType::image);
 
     QString filePath = QApplication::applicationDirPath()+QDir::separator() +
-            "Data" + QDir::separator() + QDate::currentDate().toString(Qt::SystemLocaleShortDate) + name + time + ".png";
+            "Data" + QDir::separator() + QDate::currentDate().toString(Qt::SystemLocaleShortDate)
+            + name + time + ".png";
 
     QFile file;
     if (file.open(QIODevice::WriteOnly)) {
@@ -225,17 +246,21 @@ void Client::imageProcessed(const QString &message, QImage &image)
         fileDir.mkdir(dirname);
     }
 
-    image.save(filePath);
+    image.save(filePath, "png");
 
-    int imgHeight = (image.height() < 400)? image.height() : 400;
-    int imgWidth = (image.width() < 400)? image.width() : 400;
+    int imgHeight = image.height();
+    int imgWidth = image.width();
+    int maxSize = std::max(imgHeight, imgWidth);
 
+    if (maxSize > 400) {
+        double imgScale = maxSize / 400;
+        imgHeight = imgHeight / imgScale;
+        imgWidth = imgWidth / imgScale;
+    }
 
-    htmlMessage += "<p style=\"padding-left: 20px;\"> <img src=\"" + filePath
+    htmlMessage += "<a href=\"" + filePath + "\"><p style=\"padding-left: 20px;\"> <img src=\"" + filePath
             + "\"  height=\"" + QString::number(imgHeight) +
-            "\" width=\"" + QString::number(imgWidth)+ "\" /> </p>";
-
-    qDebug() << htmlMessage;
+            "\" width=\"" + QString::number(imgWidth)+ "\"/></p></a>";
 
     m_messageList->append(htmlMessage);
 }
