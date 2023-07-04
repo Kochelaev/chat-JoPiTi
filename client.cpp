@@ -15,6 +15,7 @@ using namespace Enum;
 Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     : QWidget(parent)
 {
+    setAccessibleName("Client");
     m_pTcpSocket = new QTcpSocket(this);
 
     m_messageList = new QTextBrowser();
@@ -190,26 +191,6 @@ bool Client::eventFilter(QObject *obj, QEvent *event) //textEdit pressEnter even
         }
     }
     return false;
-}
-
-void Client::dragEnterEvent(QDragEnterEvent *event)
-{
-    qDebug() <<"dragEnterEvent";
-}
-
-void Client::dragMoveEvent(QDragMoveEvent *event)
-{
-    qDebug() <<"dragMoveEvent";
-}
-
-void Client::dragLeaveEvent(QDragLeaveEvent *event)
-{
-    qDebug() <<"dragLeaveEvent";
-}
-
-void Client::dropEvent(QDropEvent *event)
-{
-    qDebug() <<"dropEvent";
 }
 
 void Client::requestProcessed(const QString &message, QImage &image)

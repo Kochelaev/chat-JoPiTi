@@ -36,6 +36,7 @@ SOURCES += \
     app/XmlWriter.cpp \
     enum/MessageType.cpp \
     app/XmlReader.cpp \
+    app/Tray.cpp
 
 HEADERS += \
         widget.h \
@@ -47,6 +48,7 @@ HEADERS += \
     app/XmlWriter.h \
     enum/MessageType.h \
     app/XmlReader.h \
+    app/Tray.h
 
 FORMS += \
         widget.ui \

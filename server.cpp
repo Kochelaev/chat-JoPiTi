@@ -14,6 +14,7 @@ using namespace app;
 Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
                                              , m_nNExtBlockSize(0)
 {
+    setAccessibleName("Server");
     m_ptcpServer = new QTcpServer(this);
     if (!m_ptcpServer->listen(QHostAddress::Any, nPort)) {
         QMessageBox::critical(0,
@@ -41,8 +42,14 @@ Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
     setLayout(pvbxLayout);
 }
 
+Server::~Server()
+{
+    qDebug() << "server Destruct";
+}
+
 /*virtual*/ void Server::slotNewConnection()
 {
+    qDebug("Server Slot New Connection");
     QTcpSocket* pClientSocket = m_ptcpServer->nextPendingConnection();
     activeConnections += pClientSocket;
 
@@ -72,16 +79,6 @@ void Server::slotReadClient()
         QString str;
         QImage image;
         in >> time >> str >> image;
-
-//        if (!image.isNull()) {  //!!!!!!
-//            QWidget* w = new QWidget();
-//            QPalette pal;
-//            pal.setBrush(w->backgroundRole(), QBrush(image));
-//            w->setPalette(pal);
-//            w->setAutoFillBackground(true);
-//            w->show();
-//        }
-
 
         QString strMessage = time.toString() + ": " + str;
         m_ptxt->append(str);
@@ -166,11 +163,12 @@ void Server::sendNameList()
 {
     QString nameList = XmlWriter::createNameList(clientNames);
     sendToAll(nameList);
+    qDebug() << "Server send namesList" << nameList;
 }
 
 void Server::slotClientDisconnect()
 {
-    qDebug() << "client disc";
+    qDebug() << "Server slot Client Disconnect";
     QTcpSocket* pClientSocket = (QTcpSocket*)sender();
 
     auto iterator = std::find(activeConnections.begin(), activeConnections.end(), pClientSocket);

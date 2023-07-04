@@ -1,0 +1,93 @@
+#include "Tray.h"
+#include <QSystemTrayIcon>
+#include <QAction>
+#include <QDebug>
+#include <QMenu>
+#include <QApplication>
+#include "app/user.h"
+#include "widget.h"
+#include "registerform.h"
+
+app::Tray::Tray()
+{
+    construct();
+}
+
+void Tray::construct()
+{
+//    setAccessibleName("Tray");
+    m_icon = new QSystemTrayIcon(QIcon(":/img/favicon.ico"));
+    m_menu = new QMenu();
+
+    QAction* actShow = new QAction("Открыть чат", m_icon);
+    connect(actShow, SIGNAL(triggered()), this, SLOT(slotShowChat()));
+
+    QAction* actSettings = new QAction("Сбросить настройки", m_icon);
+    connect(actSettings, SIGNAL(triggered()), this, SLOT(slotResetSettings()));
+
+    QAction* actQuit = new QAction("Закрыть нахрен", m_icon);
+    connect(actQuit, SIGNAL(triggered()), this, SLOT(slotQuit()));
+
+    connect(m_icon, SIGNAL(messageClicked()), this, SLOT(slotShowChat()));
+
+    m_menu->addAction(actShow);
+    m_menu->addAction(actSettings);
+    m_menu->addAction(actQuit);
+
+    m_icon->setContextMenu(m_menu);
+    m_icon->setToolTip(QApplication::applicationName());
+
+    m_icon->show();
+}
+
+app::Tray &app::Tray::instance()
+{
+    static Tray instance;
+    return instance;
+}
+
+Tray::~Tray()
+{
+
+}
+
+void app::Tray::slotShowChat()
+{
+    QWidgetList allWidgets = qApp->topLevelWidgets();
+    foreach (auto widget, allWidgets) {
+        QString widgetName = widget->accessibleName();
+        if (widgetName == "Server" || widgetName == "Client") {
+            widget->show();
+        }
+    }
+}
+
+void app::Tray::slotResetSettings()
+{
+    User::instance().resetSettings();
+
+    QWidgetList allWidgets = qApp->topLevelWidgets();
+    foreach (auto widget, allWidgets) {
+        QString widgetName = widget->accessibleName();
+        if (widgetName == "Server" || widgetName == "Client") {
+            delete widget;
+            qDebug() << "Force destroy";
+        }
+        if (widgetName == "MainWidget") {
+            widget->show();
+        }
+    }
+}
+
+void app::Tray::slotQuit()
+{
+    QWidgetList allWidgets = qApp->topLevelWidgets();
+    foreach (auto widget, allWidgets) {
+        QString widgetName = widget->accessibleName();
+        if (widgetName == "Server" || widgetName == "Client") {
+            delete widget;
+            qDebug() << "Force destroy";
+        }
+    }
+    qApp->quit();
+}

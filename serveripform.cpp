@@ -3,7 +3,7 @@
 #include "widget.h"
 #include <QDebug>
 #include <QMessageBox>
-
+#include "app/user.h"
 #include "server.h"
 #include "client.h"
 #include <QFile>
@@ -15,15 +15,20 @@ ServerIpForm::ServerIpForm(QWidget *parent) :
     ui(new Ui::ServerIpForm)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Тайный чат");
-    parent->hide();
+    setAccessibleName("IpForm");
+    this->setWindowTitle(QApplication::applicationName());
 
     ui->lineEdit->setText(getLastIp());
+
+    if (User::instance().getLastMode() == User::Mode::Client
+            && !ui->lineEdit->text().isEmpty()) {
+        this->on_OkButton_clicked();
+    }
 }
 
 ServerIpForm::~ServerIpForm()
 {
-    delete ui;
+//    delete ui;
 }
 
 void ServerIpForm::on_OkButton_clicked()
@@ -34,10 +39,8 @@ void ServerIpForm::on_OkButton_clicked()
     hostAdd.toIPv4Address(&isCorrectIp);
 
     if ((isCorrectIp && ip.split(".").count() == 4) || ip == "localhost") {
-        static Client client(ip, Server::serverPort); //bad style?
-        client.show();
-        this->deleteLater();
         saveLastIp(ip);
+        emit signalChangeIp(ip);
     }
     else {
         QMessageBox::about(this, "Внимание", "неверный формат ip адресса");

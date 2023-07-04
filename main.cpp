@@ -1,14 +1,15 @@
 #include "widget.h"
 #include <QApplication>
-
-#include <QDebug>
 #include "app/user.h"
-#include <iostream>
 #include "registerform.h"
 #include "appform.h"
 #include "serveripform.h"
 #include "client.h"
 #include "server.h"
+#include <app/user.h>
+#include <QSystemTrayIcon>
+#include "app/Tray.h"
+
 
 using namespace app;
 
@@ -16,19 +17,22 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QFile styleFile(":/index.css");
-    styleFile.open(QFile::ReadOnly);
-    QString css = QLatin1String(styleFile.readAll());
-    app.setStyleSheet(css);
+    QCoreApplication::setOrganizationName("Chat");
+    QCoreApplication::setApplicationName("Chat-joPiTi");
+    QCoreApplication::setApplicationVersion("0.1");
+    QApplication::setWindowIcon(QIcon(":/img/favicon.ico"));
 
-    Widget mainWidget;
+    QApplication::setQuitOnLastWindowClosed(false);
 
-    if (User::instance().checkName()) {
-        mainWidget.show();
-    } else {
-        RegisterForm* regForm = new RegisterForm(&mainWidget);
-        regForm->show();
-    }
+    Tray::instance();
+
+    Widget* mainWidget = new Widget();
+//    Widget mainWidget;
+
+
+
+
+
 
     return app.exec();
 }

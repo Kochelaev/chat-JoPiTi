@@ -31,6 +31,7 @@ private:
 
 public:
     Server(int nPort, QWidget* pwgt = 0);
+    ~Server();
     static const int serverPort = 8005;
 
 public slots:

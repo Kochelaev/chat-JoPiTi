@@ -12,8 +12,9 @@ RegisterForm::RegisterForm(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::RegisterForm)
 {
+//    setAccessibleName("regForm");
     ui->setupUi(this);
-    this->setWindowTitle("Тайный чат");
+    this->setWindowTitle(QApplication::applicationName());
     ui->name->setText(User::instance().getName());
     parent->hide();
 }
@@ -37,6 +38,15 @@ void RegisterForm::on_OkButton_clicked()
     } else {
         QMessageBox::warning(this, "Внимание!", "Имя не может быть пустым");
     }
+}
+
+bool RegisterForm::event(QEvent *event)
+{
+    if (event->type() == QEvent::Hide) {
+        qApp->quit();
+        return true;
+    }
+    return false;
 }
 
 void RegisterForm::on_cancelButton_clicked()

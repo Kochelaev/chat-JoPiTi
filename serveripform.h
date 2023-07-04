@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QString>
+#include "client.h"
 
 namespace Ui {
 class ServerIpForm;
@@ -14,7 +15,12 @@ class ServerIpForm : public QDialog
 
 public:
     explicit ServerIpForm(QWidget *parent = 0);
+
     ~ServerIpForm();
+
+signals:
+    void signalChangeIp(const QString &ip);
+
 
 private slots:
     void on_OkButton_clicked();

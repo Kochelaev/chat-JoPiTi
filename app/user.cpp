@@ -12,16 +12,18 @@ User::User()
             this->name = file.read(maxNameLength);
         }
     }
+    m_settings = new QSettings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
 }
 
-User::~User() {}
+User::~User()
+{
+}
 
 User& User::instance()
 {
     static User instance;
     return instance;
 }
-
 
 void User::setName(const QString &name)
 {
@@ -44,6 +46,43 @@ QString User::getName()
 {
     return this->name;
 }
+
+User::Mode User::getLastMode()
+{
+    return Mode(m_settings->value(lastModeKey()).toInt());
+}
+
+void User::setLastMode(const Mode &value)
+{
+    m_settings->setValue(lastModeKey(), value);
+}
+
+QString User::getLastIp()
+{
+    return QString(m_settings->value(lastIpKey()).toString());
+}
+
+void User::setLastIp(const QString &value)
+{
+    m_settings->setValue(lastIpKey(), value);
+}
+
+void User::resetSettings()
+{
+    m_settings->remove(lastModeKey());
+    m_settings->remove(lastIpKey());
+}
+
+QString User::lastModeKey()
+{
+    return QString("last_mode");
+}
+
+QString User::lastIpKey()
+{
+    return QString("last_ip");
+}
+
 
 
 

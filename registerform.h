@@ -22,6 +22,9 @@ private slots:
 
 private:
     Ui::RegisterForm *ui;
+
+protected:
+    virtual bool event(QEvent *event);
 };
 
 #endif // REGISTERFORM_H

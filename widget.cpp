@@ -14,48 +14,79 @@ Widget::Widget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Widget)
 {
-
+    m_client = nullptr;
+    m_server = nullptr;
+    setAccessibleName("MainWidget");
     ui->setupUi(this);
-
     QPalette pal;
     pal.setBrush(this->backgroundRole(), QBrush(QPixmap(":/img/image.jpg")));
     this->setPalette(pal);
-
-    this->setWindowFlags(Qt::WindowStaysOnTopHint);
-    this->setWindowTitle("Тайный чат");
-
+    this->setWindowTitle(QApplication::applicationName());
     this->refreshName();
+
+    User user = User::instance();
+    User::Mode mode = user.getLastMode();
+    if (!user.checkName()) {
+        on_changeNameButton_clicked();
+    } else if (mode == User::Mode::Server) {
+        on_serverButton_clicked();
+    } else if (mode == User::Mode::Client && !user.getLastIp().isEmpty()) {
+        m_client = new Client(user.getLastIp(), Server::serverPort);
+        m_client->show();
+    } else {
+        this->show();
+    }
 }
 
 Widget::~Widget()
 {
-    delete ui;
-    qDebug()<<"exit";
+//    delete ui;
+//    if (m_client != nullptr) {
+//        delete m_client;
+//    }
+//    if (m_server != nullptr) {
+//        delete m_server;
+//    }
 }
 
 void Widget::on_ClientButton_clicked()
 {
-    ServerIpForm* ipForm = new ServerIpForm(this);
-    ipForm->show();
+    m_ipForm = new ServerIpForm();
+    m_ipForm->show();
+    connect(m_ipForm, SIGNAL(signalChangeIp(QString)), this, SLOT(slotClientChangeIp(QString)));
+    this->hide();
+    User::instance().setLastMode(User::Mode::Client);
 }
 
 void Widget::on_serverButton_clicked()
 {
-    static Server server(Server::serverPort);                 //
-    static Client client("localhost", Server::serverPort);    // static bad style?
+//    Server server(Server::serverPort);                 //
+    m_server = new Server(Server::serverPort);
 
-    client.setWindowTitle("ServeClient");   // delete this later
+    m_client = new Client("localhost", Server::serverPort);
 
-    server.show();
-    client.show();
+    m_client->setWindowTitle("ServeClient");   // delete this later
+
+    m_server->show();
+    m_client->show();
 
     this->hide();
+
+    User::instance().setLastMode(User::Mode::Server);
 }
 
 void Widget::on_changeNameButton_clicked()
 {
-    RegisterForm* regForm = new RegisterForm(this);
-    regForm->show();
+    m_regForm= new RegisterForm(this);
+    m_regForm->show();
+}
+
+void Widget::slotClientChangeIp(const QString &ip)
+{
+    m_client = new Client(ip, Server::serverPort);
+    m_ipForm->deleteLater();
+    m_client->show();
+    User::instance().setLastIp(ip);
 }
 
 void Widget::refreshName()
@@ -65,3 +96,15 @@ void Widget::refreshName()
         ui->nickName->setText(user->getName());
     }
 }
+
+bool Widget::event(QEvent *event)
+{
+//    qDebug() << "EVENT: " << event->type();
+    if (event->type() == QEvent::Close) {
+        qApp->quit();
+        return true;      // :D
+    }
+    return false;
+}
+
+

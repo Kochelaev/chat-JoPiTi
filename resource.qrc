@@ -9,5 +9,6 @@
         <file>img/send.png</file>
         <file>index.css</file>
         <file>img/sendImage.png</file>
+        <file>img/favicon.ico</file>
     </qresource>
 </RCC>
