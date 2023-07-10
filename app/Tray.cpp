@@ -15,7 +15,7 @@ app::Tray::Tray()
 
 void Tray::construct()
 {
-//    setAccessibleName("Tray");
+    setAccessibleName("Tray");
     m_icon = new QSystemTrayIcon(QIcon(":/img/favicon.ico"));
     m_menu = new QMenu();
 
@@ -49,6 +49,16 @@ app::Tray &app::Tray::instance()
 Tray::~Tray()
 {
 
+}
+
+void Tray::youHaveNewMessageTip()
+{
+    m_icon->showMessage(
+                QApplication::applicationName(),
+                "У вас новое сообщение!",
+                QSystemTrayIcon::NoIcon,
+                99999999
+            );
 }
 
 void app::Tray::slotShowChat()

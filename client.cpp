@@ -8,6 +8,7 @@
 #include "app/XmlWriter.h"
 #include "app/XmlReader.h"
 #include "enum/MessageType.h"
+#include "app/Tray.h"
 
 using namespace app;
 using namespace Enum;
@@ -209,6 +210,16 @@ void Client::messageProcessed(const QString &message)
 {
     QString htmlMessage = app::XmlReader::getHtmlMessage(message);
     m_messageList->append(htmlMessage);
+    if (!this->isActiveWindow()) {
+        QWidgetList allWidgets = qApp->topLevelWidgets();
+        foreach (auto widget, allWidgets) {
+            if (widget->accessibleName() == "Tray") {
+                Tray* tray = qobject_cast<Tray*>(widget);
+                tray->youHaveNewMessageTip();
+            }
+        }
+    }
+
 }
 
 void Client::namesListProcessed(const QString &message)

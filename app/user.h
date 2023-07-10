@@ -38,6 +38,8 @@ public:
     void setLastIp(const QString &value);
     void resetSettings();
 
+    qint64 getMaxNameLength();
+
 private:
     QString lastModeKey();
     QString lastIpKey();

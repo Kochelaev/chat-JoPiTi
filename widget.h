@@ -29,6 +29,8 @@ public slots:
 
     void slotClientChangeIp(const QString &ip);
 
+    void slotChangeName();
+
 private:
     Ui::Widget *ui;
     Server* m_server;

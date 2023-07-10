@@ -10,16 +10,15 @@ namespace app {
         Q_OBJECT
 
     private:
-        Tray();
-
-
         QSystemTrayIcon* m_icon;
         QMenu* m_menu;
+        Tray();
 
     public:
         static Tray& instance();
         void construct();
         ~Tray();
+        void youHaveNewMessageTip();
 
     public slots:
         void slotShowChat();

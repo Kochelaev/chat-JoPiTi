@@ -73,6 +73,11 @@ void User::resetSettings()
     m_settings->remove(lastIpKey());
 }
 
+qint64 User::getMaxNameLength()
+{
+    return maxNameLength;
+}
+
 QString User::lastModeKey()
 {
     return QString("last_mode");

@@ -24,15 +24,8 @@ int main(int argc, char *argv[])
 
     QApplication::setQuitOnLastWindowClosed(false);
 
+    new Widget();
     Tray::instance();
-
-    Widget* mainWidget = new Widget();
-//    Widget mainWidget;
-
-
-
-
-
 
     return app.exec();
 }
