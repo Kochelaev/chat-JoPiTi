@@ -39,7 +39,6 @@ void Tray::construct()
 
     m_icon->show();
     connect(m_icon, SIGNAL(messageClicked()), this, SLOT(slotMessageClick()));
-    this->youHaveNewMessageTip();
 }
 
 app::Tray &app::Tray::instance()
@@ -73,7 +72,7 @@ void app::Tray::slotShowChat()
     QWidgetList allWidgets = qApp->topLevelWidgets();
     foreach (auto widget, allWidgets) {
         QString widgetName = widget->accessibleName();
-        if (widgetName == "Server" || widgetName == "Client") {
+        if (/*widgetName == "Server" ||*/ widgetName == "Client") {
             widget->show();
         }
     }
@@ -86,7 +85,7 @@ void app::Tray::slotResetSettings()
     QWidgetList allWidgets = qApp->topLevelWidgets();
     foreach (auto widget, allWidgets) {
         QString widgetName = widget->accessibleName();
-        if (widgetName == "Server" || widgetName == "Client") {
+        if (/*widgetName == "Server" ||*/ widgetName == "Client") {
             delete widget;
             qDebug() << "Force destroy";
         }
@@ -101,7 +100,7 @@ void app::Tray::slotQuit()
     QWidgetList allWidgets = qApp->topLevelWidgets();
     foreach (auto widget, allWidgets) {
         QString widgetName = widget->accessibleName();
-        if (widgetName == "Server" || widgetName == "Client") {
+        if (/*widgetName == "Server" ||*/ widgetName == "Client") {
             delete widget;
             qDebug() << "Force destroy";
         }

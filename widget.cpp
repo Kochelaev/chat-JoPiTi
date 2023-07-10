@@ -37,7 +37,7 @@ Widget::Widget(QWidget *parent) :
 //        on_serverButton_clicked();
         m_server = new Server(Server::serverPort);
         m_client = new Client("localhost", Server::serverPort);
-        m_server->show();
+//        m_server->show();
         m_client->show();
         this->hide();
 
@@ -74,9 +74,9 @@ void Widget::on_serverButton_clicked()
 
     m_client = new Client("localhost", Server::serverPort);
 
-    m_client->setWindowTitle("ServeClient");   // delete this later
+//    m_client->setWindowTitle("ServeClient");   // delete this later
 
-    m_server->show();
+//    m_server->show();
     m_client->show();
 
     this->hide();
