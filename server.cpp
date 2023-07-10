@@ -45,12 +45,10 @@ Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
 
 Server::~Server()
 {
-    qDebug() << "server Destruct";
 }
 
 /*virtual*/ void Server::slotNewConnection()
 {
-    qDebug("Server Slot New Connection");
     QTcpSocket* pClientSocket = m_ptcpServer->nextPendingConnection();
     activeConnections += pClientSocket;
 
@@ -164,12 +162,10 @@ void Server::sendNameList()
 {
     QString nameList = XmlWriter::createNameList(clientNames);
     sendToAll(nameList);
-    qDebug() << "Server send namesList" << nameList;
 }
 
 void Server::slotClientDisconnect()
 {
-    qDebug() << "Server slot Client Disconnect";
     QTcpSocket* pClientSocket = (QTcpSocket*)sender();
 
     auto iterator = std::find(activeConnections.begin(), activeConnections.end(), pClientSocket);

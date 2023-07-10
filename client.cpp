@@ -73,7 +73,6 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
 
 Client::~Client()
 {
-    qDebug() << "Client Destruct";
     m_pTcpSocket->disconnectFromHost();
 }
 
@@ -137,7 +136,6 @@ void Client::slotOpenLink(QUrl url)
     QImage img(url.toString());
 
     if (img.isNull()) {
-        qDebug() << "Img is empty. return";
         return;
     }
 

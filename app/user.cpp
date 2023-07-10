@@ -1,6 +1,5 @@
 #include "app/user.h"
 #include <QFile>
-#include <QDebug>
 #include <QDir>
 #include <QApplication>
 

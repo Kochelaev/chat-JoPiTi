@@ -1,7 +1,6 @@
 #include "registerform.h"
 #include "ui_registerform.h"
 #include "widget.h"
-#include <QDebug>
 #include <QMessageBox>
 
 #include "app/user.h"
@@ -37,13 +36,11 @@ RegisterForm::RegisterForm(QWidget *parent) :
 
 RegisterForm::~RegisterForm()
 {
-    qDebug() << "register close";
 }
 
 void RegisterForm::on_OkButton_clicked()
 {
 
-    qDebug() << "Button_clickd!";
     const QString name = m_input->text();
     if (name.count() > User::instance().getMaxNameLength()) {
         QMessageBox::warning(this, "Внимание!", "Имя слишком длинное");
@@ -70,5 +67,4 @@ void RegisterForm::keyPressEvent(QKeyEvent *event)
 
 void RegisterForm::on_cancelButton_clicked()
 {
-   qDebug() << "SIgnal change name";
 }

@@ -1,7 +1,6 @@
 #include "XmlReader.h"
 
 #include <QXmlStreamReader>
-#include <QDebug>
 #include <QtXml>
 #include <QDataStream>
 #include "enum/MessageType.h"

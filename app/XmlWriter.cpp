@@ -1,5 +1,4 @@
 #include "XmlWriter.h"
-#include <QDebug>
 #include <QtXml>
 #include <app/user.h>
 #include <QString>
@@ -51,8 +50,6 @@ QString XmlWriter::ImageMessage()
     elem.setAttribute("name", User::instance().getName());
 
     doc.appendChild(elem);
-
-    qDebug() << doc.toString();
 
     return doc.toString();
 }

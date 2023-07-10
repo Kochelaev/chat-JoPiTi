@@ -1,7 +1,6 @@
 #include "serveripform.h"
 #include "ui_serveripform.h"
 #include "widget.h"
-#include <QDebug>
 #include <QMessageBox>
 #include "app/user.h"
 #include "server.h"

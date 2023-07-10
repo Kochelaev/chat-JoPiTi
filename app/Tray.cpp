@@ -1,7 +1,6 @@
 #include "Tray.h"
 #include <QSystemTrayIcon>
 #include <QAction>
-#include <QDebug>
 #include <QMenu>
 #include <QApplication>
 #include "app/user.h"
@@ -87,7 +86,6 @@ void app::Tray::slotResetSettings()
         QString widgetName = widget->accessibleName();
         if (/*widgetName == "Server" ||*/ widgetName == "Client") {
             delete widget;
-            qDebug() << "Force destroy";
         }
         if (widgetName == "MainWidget") {
             widget->show();
@@ -102,7 +100,6 @@ void app::Tray::slotQuit()
         QString widgetName = widget->accessibleName();
         if (/*widgetName == "Server" ||*/ widgetName == "Client") {
             delete widget;
-            qDebug() << "Force destroy";
         }
     }
     qApp->quit();

@@ -30,7 +30,6 @@ Widget::Widget(QWidget *parent) :
 
     this->show();
     if (!user.checkName()) {
-        qDebug() << "herak1";
         on_changeNameButton_clicked();
     } //
     else if (mode == User::Mode::Server) {
@@ -102,8 +101,6 @@ void Widget::slotClientChangeIp(const QString &ip)
 
 void Widget::slotChangeName()
 {
-    qDebug() << "slotChangeName";
-
     User* user = &User::instance();
 
     if (user->checkName()) {
