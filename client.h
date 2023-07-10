@@ -40,6 +40,7 @@ protected:
     void messageProcessed(const QString &message);
     void namesListProcessed(const QString &message);
     void imageProcessed(const QString &messsage, QImage &image);
+    virtual void enterEvent(QEvent *event) override;
 
 private:            // Image send methods
     bool hasImageClip();

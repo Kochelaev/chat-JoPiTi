@@ -17,6 +17,8 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     : QWidget(parent)
 {
     setAccessibleName("Client");
+
+    m_nNExtBlockSize = 0;
     m_pTcpSocket = new QTcpSocket(this);
 
     m_messageList = new QTextBrowser();
@@ -66,6 +68,7 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
     setLayout(layout);
 
     connect(m_messageList, SIGNAL(anchorClicked(QUrl)), this, SLOT(slotOpenLink(QUrl)));
+
 }
 
 Client::~Client()
@@ -279,6 +282,11 @@ void Client::imageProcessed(const QString &message, QImage &image)
             "\" width=\"" + QString::number(imgWidth)+ "\"/></p></a>";
 
     m_messageList->append(htmlMessage);
+}
+
+void Client::enterEvent(QEvent *event)
+{
+    Tray::instance().emitMessageClick();
 }
 
 bool Client::hasImageClip()

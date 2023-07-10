@@ -38,6 +38,8 @@ void Tray::construct()
     m_icon->setToolTip(QApplication::applicationName());
 
     m_icon->show();
+    connect(m_icon, SIGNAL(messageClicked()), this, SLOT(slotMessageClick()));
+    this->youHaveNewMessageTip();
 }
 
 app::Tray &app::Tray::instance()
@@ -58,7 +60,12 @@ void Tray::youHaveNewMessageTip()
                 "У вас новое сообщение!",
                 QSystemTrayIcon::NoIcon,
                 99999999
-            );
+                );
+}
+
+void Tray::emitMessageClick()
+{
+    emit(m_icon->messageClicked());
 }
 
 void app::Tray::slotShowChat()
@@ -100,4 +107,9 @@ void app::Tray::slotQuit()
         }
     }
     qApp->quit();
+}
+
+void Tray::slotMessageClick()
+{
+    m_icon->showMessage("", "", QSystemTrayIcon::NoIcon, 0);
 }

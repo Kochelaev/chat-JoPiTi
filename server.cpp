@@ -14,6 +14,7 @@ using namespace app;
 Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
                                              , m_nNExtBlockSize(0)
 {
+    m_nNExtBlockSize = 0;
     setAccessibleName("Server");
     m_ptcpServer = new QTcpServer(this);
     if (!m_ptcpServer->listen(QHostAddress::Any, nPort)) {

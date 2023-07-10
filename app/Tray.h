@@ -19,11 +19,13 @@ namespace app {
         void construct();
         ~Tray();
         void youHaveNewMessageTip();
+        void emitMessageClick();
 
     public slots:
         void slotShowChat();
         void slotResetSettings();
         void slotQuit();
+        void slotMessageClick();
     };
 
 }

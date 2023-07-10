@@ -33,22 +33,19 @@ Widget::Widget(QWidget *parent) :
         qDebug() << "herak1";
         on_changeNameButton_clicked();
     } //
-//    else if (mode == User::Mode::Server) {
+    else if (mode == User::Mode::Server) {
 //        on_serverButton_clicked();
-////        m_server = new Server(Server::serverPort);
-////        m_client = new Client("localhost", Server::serverPort);
-////        m_server->show();
-////        m_client->show();
-////        this->hide();
+        m_server = new Server(Server::serverPort);
+        m_client = new Client("localhost", Server::serverPort);
+        m_server->show();
+        m_client->show();
+        this->hide();
 
-//        qDebug() << "herak2";
-//    } else if (mode == User::Mode::Client && !user.getLastIp().isEmpty()) {
-//        on_clie
-////        m_client = new Client(user.getLastIp(), Server::serverPort);
-////        m_client->show();
-//        qDebug() << "herak3";
-////        this->hide();
-//    }
+    } else if (mode == User::Mode::Client && !user.getLastIp().isEmpty()) {
+        m_client = new Client(user.getLastIp(), Server::serverPort);
+        m_client->show();
+        this->hide();
+    }
 }
 
 Widget::~Widget()
