@@ -1,5 +1,5 @@
 #include "registerform.h"
-#include "ui_registerform.h"
+//#include "ui_registerform.h"
 #include "widget.h"
 #include <QMessageBox>
 

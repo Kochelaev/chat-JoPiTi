@@ -1,4 +1,5 @@
-#include "widget.h"
+#include "StarWindow.h"
+//#include "widget.h"
 //#include "ui_widget.h"
 
 #include "app/user.h"
@@ -10,18 +11,14 @@
 
 using namespace app;
 
-Widget::Widget(QWidget *parent) :
+StarWindow::StarWindow(QWidget *parent) :
     QWidget(parent)
 {
     m_client = nullptr;
     m_server = nullptr;
     setAccessibleName("MainWidget");
-
+//    ui->setupUi(this);
     this->boostUI();
-    this->setWindowFlags(
-            Qt::Window | Qt::WindowTitleHint | Qt::WindowStaysOnTopHint
-        );
-
 
     this->setWindowTitle(QApplication::applicationName());
     this->refreshName();
@@ -29,10 +26,12 @@ Widget::Widget(QWidget *parent) :
     User user = User::instance();
     User::Mode mode = user.getLastMode();
 
+    this->show();
     if (!user.checkName()) {
         on_changeNameButton_clicked();
     } //
     else if (mode == User::Mode::Server) {
+//        on_serverButton_clicked();
         m_server = new Server(Server::serverPort);
         m_client = new Client("localhost", Server::serverPort);
 //        m_server->show();
@@ -46,8 +45,9 @@ Widget::Widget(QWidget *parent) :
     }
 }
 
-Widget::~Widget()
+StarWindow::~StarWindow()
 {
+//    delete ui;
     if (m_client != nullptr) {
         delete m_client;
     }
@@ -56,7 +56,7 @@ Widget::~Widget()
     }
 }
 
-void Widget::on_ClientButton_clicked()
+void StarWindow::on_ClientButton_clicked()
 {
     m_ipForm = new ServerIpForm();
     m_ipForm->show();
@@ -65,7 +65,7 @@ void Widget::on_ClientButton_clicked()
     User::instance().setLastMode(User::Mode::Client);
 }
 
-void Widget::on_serverButton_clicked()
+void StarWindow::on_serverButton_clicked()
 {
     m_server = new Server(Server::serverPort);
     m_client = new Client("localhost", Server::serverPort);
@@ -79,7 +79,7 @@ void Widget::on_serverButton_clicked()
     User::instance().setLastMode(User::Mode::Server);
 }
 
-void Widget::on_changeNameButton_clicked()
+void StarWindow::on_changeNameButton_clicked()
 {
     m_regForm = new RegisterForm();
     connect(m_regForm, SIGNAL(signalChangeName()), this, SLOT(slotChangeName()));
@@ -87,7 +87,7 @@ void Widget::on_changeNameButton_clicked()
     m_regForm->show();
 }
 
-void Widget::slotClientChangeIp(const QString &ip)
+void StarWindow::slotClientChangeIp(const QString &ip)
 {
     m_client = new Client(ip, Server::serverPort);
     m_ipForm->deleteLater();
@@ -95,7 +95,7 @@ void Widget::slotClientChangeIp(const QString &ip)
     User::instance().setLastIp(ip);
 }
 
-void Widget::slotChangeName()
+void StarWindow::slotChangeName()
 {
     User* user = &User::instance();
 
@@ -108,24 +108,7 @@ void Widget::slotChangeName()
     }
 }
 
-void Widget::slotChangeSide()
-{
-    QString cssPath;
-    if (User::instance().isDarkSide()) {
-        User::instance().setDarkSide(false);
-        m_darkSideButton->setText("Перейти на темную сторону");
-        cssPath = ":/css/style.css";
-    } else  {
-        User::instance().setDarkSide(true);
-        m_darkSideButton->setText("Перейти на светлую сторону");
-        cssPath = ":/css/darkSide.css";
-    }
-    QFile styleFile(cssPath);
-    styleFile.open(QFile::ReadOnly);
-    qApp->setStyleSheet(QLatin1String(styleFile.readAll()));
-}
-
-void Widget::refreshName()
+void StarWindow::refreshName()
 {
     User* user = &User::instance();
     if (user->checkName()) {
@@ -135,24 +118,20 @@ void Widget::refreshName()
     }
 }
 
-bool Widget::event(QEvent *event)
+bool StarWindow::event(QEvent *event)
 {
     if (event->type() == QEvent::Close) {
         qApp->quit();
-        return false;      // :D
+        return true;      // :D
     }
-    return QWidget::event(event);
+    return false;
 }
 
-void Widget::boostUI()
+void StarWindow::boostUI()
 {
     m_clientButton = new QPushButton("Клиент");
-    m_serverButton = new QPushButton("Сервер");
+    m_serverButton = new QPushButton("Серевер");
     m_changeNameButton = new QPushButton ("Сменить никнейм");
-    m_darkSideButton = User::instance().isDarkSide() ?
-        new QPushButton ("Перейти на светлую сторону") :
-        new QPushButton ("Перейти на темную сторону");
-
     m_nameTitle = new QLabel("<b>Ваш никнейм: </b>");
     m_nameLabel = new QLabel(User::instance().getName());
 
@@ -160,8 +139,7 @@ void Widget::boostUI()
     layout->addWidget(m_clientButton);
     layout->addWidget(m_serverButton);
     layout->addWidget(m_changeNameButton);
-    layout->addWidget(m_darkSideButton);
-    layout->addSpacing(30);
+//    layout->addSpacing(1);
     layout->addWidget(m_nameTitle);
     layout->addWidget(m_nameLabel);
 
@@ -170,6 +148,5 @@ void Widget::boostUI()
     connect(m_clientButton, SIGNAL(clicked()), this, SLOT(on_ClientButton_clicked()));
     connect(m_serverButton, SIGNAL(clicked()), this, SLOT(on_serverButton_clicked()));
     connect(m_changeNameButton, SIGNAL(clicked()), this, SLOT(on_changeNameButton_clicked()));
-    connect(m_darkSideButton, SIGNAL(clicked()), this, SLOT(slotChangeSide()));
 
 }

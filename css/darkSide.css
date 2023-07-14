@@ -1,0 +1,27 @@
+* {
+    color: #C2C2C2;
+    background-color: #2E2F30;
+}
+
+QPushButton:hover {
+    color: white;
+}
+
+Client QTextEdit {
+    color: white;
+    background-color: #2E2F30;
+}
+
+Client QListWidget {
+    color: white;
+    background-color: #2E2F30;
+}
+
+Widget QPushButton:hover {
+    color: white;
+}
+
+ServerIpForm QLineEdit {
+    color: white;
+    background-color: #3E3E3E;
+}

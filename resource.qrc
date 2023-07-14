@@ -10,5 +10,7 @@
         <file>index.css</file>
         <file>img/sendImage.png</file>
         <file>img/favicon.ico</file>
+        <file>css/style.css</file>
+        <file>css/darkSide.css</file>
     </qresource>
 </RCC>

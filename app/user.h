@@ -21,7 +21,7 @@ public:
     };
 
 protected:
-    QString name;
+    QString name="";
     const QString filename = "userInfo";
     const qint64 maxNameLength = 20;
     QSettings *m_settings;
@@ -39,6 +39,9 @@ public:
     void resetSettings();
 
     qint64 getMaxNameLength();
+
+    void setDarkSide(bool flag);
+    bool isDarkSide();
 
 private:
     QString lastModeKey();

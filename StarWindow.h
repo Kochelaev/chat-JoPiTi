@@ -1,5 +1,5 @@
-#ifndef WIDGET_H
-#define WIDGET_H
+#ifndef STARWINDOW_H
+#define STARWINDOW_H
 
 #include <QWidget>
 #include "serveripform.h"
@@ -7,27 +7,25 @@
 #include "server.h"
 #include "client.h"
 #include "serveripform.h"
-#include "StarWindow.h"
 
-//namespace Ui {
-//class Widget;
-//}
-
-class Widget : public QWidget
+class StarWindow : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit Widget(QWidget *parent = 0);
-    ~Widget();
+    explicit StarWindow(QWidget *parent = 0);
+    ~StarWindow();
 
 public slots:
     void on_ClientButton_clicked();
+
     void on_serverButton_clicked();
+
     void on_changeNameButton_clicked();
+
     void slotClientChangeIp(const QString &ip);
+
     void slotChangeName();
-    void slotChangeSide();
 
 private:
     Server* m_server;
@@ -38,7 +36,6 @@ private:
     QPushButton* m_clientButton;
     QPushButton* m_serverButton;
     QPushButton* m_changeNameButton;
-    QPushButton* m_darkSideButton;
     QLabel* m_nameTitle;
     QLabel* m_nameLabel;
 
@@ -52,4 +49,4 @@ private:
     void boostUI();
 };
 
-#endif // WIDGET_H
+#endif // STARWINDOW_H

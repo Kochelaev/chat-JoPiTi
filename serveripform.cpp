@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QDir>
 #include <QApplication>
+#include "app/Tray.h"
 
 ServerIpForm::ServerIpForm(QWidget *parent) :
     QDialog(parent),
@@ -65,4 +66,9 @@ void ServerIpForm::saveLastIp(const QString &ip)
         file.write(ip.toUtf8());
     }
     file.close();
+}
+
+void ServerIpForm::closeEvent(QCloseEvent *)
+{
+    Tray::instance().slotResetSettings(); // костылёк
 }

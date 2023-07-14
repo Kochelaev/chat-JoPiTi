@@ -33,6 +33,9 @@ private:
 
     QString getLastIp();
     void saveLastIp(const QString &ip);
+
+protected:
+    void closeEvent(QCloseEvent *) override;
 };
 
 #endif // SERVERIPFORM_H

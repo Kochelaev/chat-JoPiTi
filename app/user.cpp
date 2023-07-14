@@ -77,6 +77,16 @@ qint64 User::getMaxNameLength()
     return maxNameLength;
 }
 
+void User::setDarkSide(bool flag)
+{
+    m_settings->setValue("darkSide", flag);
+}
+
+bool User::isDarkSide()
+{
+    return m_settings->value("darkSide").toBool();
+}
+
 QString User::lastModeKey()
 {
     return QString("last_mode");

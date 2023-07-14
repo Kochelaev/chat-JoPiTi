@@ -19,15 +19,14 @@ void Tray::construct()
     m_menu = new QMenu();
 
     QAction* actShow = new QAction("Открыть чат", m_icon);
-    connect(actShow, SIGNAL(triggered()), this, SLOT(slotShowChat()));
-
     QAction* actSettings = new QAction("Сбросить настройки", m_icon);
-    connect(actSettings, SIGNAL(triggered()), this, SLOT(slotResetSettings()));
-
     QAction* actQuit = new QAction("Закрыть нахрен", m_icon);
-    connect(actQuit, SIGNAL(triggered()), this, SLOT(slotQuit()));
 
+    connect(actShow, SIGNAL(triggered()), this, SLOT(slotShowChat()));
+    connect(actSettings, SIGNAL(triggered()), this, SLOT(slotResetSettings()));
+    connect(actQuit, SIGNAL(triggered()), this, SLOT(slotQuit()));
     connect(m_icon, SIGNAL(messageClicked()), this, SLOT(slotShowChat()));
+    connect(m_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(slotShowChat()));
 
     m_menu->addAction(actShow);
     m_menu->addAction(actSettings);
@@ -84,7 +83,7 @@ void app::Tray::slotResetSettings()
     QWidgetList allWidgets = qApp->topLevelWidgets();
     foreach (auto widget, allWidgets) {
         QString widgetName = widget->accessibleName();
-        if (/*widgetName == "Server" ||*/ widgetName == "Client") {
+        if (widgetName == "Server" || widgetName == "Client") {
             delete widget;
         }
         if (widgetName == "MainWidget") {
@@ -98,7 +97,7 @@ void app::Tray::slotQuit()
     QWidgetList allWidgets = qApp->topLevelWidgets();
     foreach (auto widget, allWidgets) {
         QString widgetName = widget->accessibleName();
-        if (/*widgetName == "Server" ||*/ widgetName == "Client") {
+        if (widgetName == "Server" || widgetName == "Client") {
             delete widget;
         }
     }
