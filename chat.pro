@@ -36,7 +36,8 @@ SOURCES += \
     app/XmlWriter.cpp \
     enum/MessageType.cpp \
     app/XmlReader.cpp \
-    app/Tray.cpp
+    app/Tray.cpp \
+    AdminPanel.cpp
 
 HEADERS += \
         widget.h \
@@ -48,7 +49,8 @@ HEADERS += \
     app/XmlWriter.h \
     enum/MessageType.h \
     app/XmlReader.h \
-    app/Tray.h
+    app/Tray.h \
+    AdminPanel.h
 
 FORMS += \
 #    registerform.ui \
@@ -58,3 +60,6 @@ RESOURCES += \
     resource.qrc
 
 #DISTFILES +=
+
+DISTFILES += \
+    img/oleg.png

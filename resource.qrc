@@ -12,5 +12,6 @@
         <file>img/favicon.ico</file>
         <file>css/style.css</file>
         <file>css/darkSide.css</file>
+        <file>img/oleg.png</file>
     </qresource>
 </RCC>

@@ -119,6 +119,8 @@ void Server::requestProcessing(const QString &in, QTcpSocket* sender, QImage ima
         this->processMessage(in, sender);
     } else if (messageType == Enum::MessageType::image) {
         this->processImage(in, sender, image);
+    } else if (messageType == Enum::MessageType::oleg) {
+        this->olegProcessed(in, sender);
     }
 }
 
@@ -147,6 +149,11 @@ void Server::processImage(const QString &message, QTcpSocket *sender, QImage &im
     QString HtmlMessage = app::XmlWriter::PrepareClientMessage("", name, Enum::MessageType::image);
 
     sendToAll(HtmlMessage, image);
+}
+
+void Server::olegProcessed(const QString &in, QTcpSocket *sender)
+{
+    sendToAll(in);
 }
 
 void Server::refreshNameList()

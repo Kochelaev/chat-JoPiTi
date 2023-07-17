@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QtWidgets>
 #include <QTcpSocket>
+#include "AdminPanel.h"
 
 class QTextEdit;
 class QLineEdit;
@@ -25,6 +26,9 @@ private:
     QBoxLayout* m_messageLayout;
     QSplitter* m_splitter;
 
+    AdminPanel* m_adminPanel;
+    QLabel* oleg = nullptr;
+
 public:
     Client(const QString& strHost, int nPort, QWidget* parent= 0);
     ~Client();
@@ -33,7 +37,7 @@ public:
     void sendToServer(QString message, QImage image = QImage());
 
 protected:
-    virtual bool eventFilter(QObject *obj, QEvent *event);
+    virtual bool eventFilter(QObject *obj, QEvent *event) override;
 
 protected:
     void requestProcessed(const QString &message, QImage &image);
@@ -41,6 +45,8 @@ protected:
     void namesListProcessed(const QString &message);
     void imageProcessed(const QString &messsage, QImage &image);
     virtual void enterEvent(QEvent *event) override;
+
+    void olegProcessed();
 
 private:            // Image send methods
     bool hasImageClip();
@@ -55,6 +61,7 @@ public slots:
     void slotConnected();
 
     void slotAttachFile();
+    void slotSendOleg();
 
     void slotOpenLink(QUrl url);
 };

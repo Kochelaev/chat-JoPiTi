@@ -69,6 +69,8 @@ Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
 
     connect(m_messageList, SIGNAL(anchorClicked(QUrl)), this, SLOT(slotOpenLink(QUrl)));
 
+    m_adminPanel = new AdminPanel();
+    connect(m_adminPanel->getOlegButtonPointer(), SIGNAL(clicked()), this, SLOT(slotSendOleg()));
 }
 
 Client::~Client()
@@ -131,6 +133,12 @@ void Client::slotAttachFile()
     }
 }
 
+void Client::slotSendOleg()
+{
+    QString olegMessage = XmlWriter::OlegMessage();
+    sendToServer(olegMessage);
+}
+
 void Client::slotOpenLink(QUrl url)
 {
     QImage img(url.toString());
@@ -140,6 +148,7 @@ void Client::slotOpenLink(QUrl url)
     }
 
     QWidget* imgWidget = new QWidget();
+    imgWidget->setStyleSheet("* {background-color: none;}");
     QPalette pal;
     pal.setBrush(imgWidget->backgroundRole(), QBrush(img));
 
@@ -191,6 +200,11 @@ bool Client::eventFilter(QObject *obj, QEvent *event) //textEdit pressEnter even
                 return true;
             }
         }
+
+        if (modifers == Qt::AltModifier && key == Qt::Key_0) {
+            m_adminPanel->show();
+            return true;
+        }
     }
     return false;
 }
@@ -204,6 +218,8 @@ void Client::requestProcessed(const QString &message, QImage &image)
         this->namesListProcessed(message);
     } else if (messageType == Enum::MessageType::image) {
         this->imageProcessed(message, image);
+    } else if (messageType == Enum::MessageType::oleg) {
+        this->olegProcessed();
     }
 }
 
@@ -285,6 +301,27 @@ void Client::imageProcessed(const QString &message, QImage &image)
 void Client::enterEvent(QEvent *event)
 {
     Tray::instance().emitMessageClick();
+}
+
+void Client::olegProcessed()
+{
+    if (oleg != nullptr) {
+        oleg->show();
+        return;
+    }
+
+    oleg = new QLabel(
+        nullptr,
+        Qt::FramelessWindowHint | Qt::Window | Qt::WindowStaysOnTopHint
+    );
+    oleg->setAttribute(Qt::WA_TranslucentBackground);
+
+    QPixmap png (":/img/oleg.png");
+    oleg->setPixmap(png);
+    oleg->move(0,0);
+    oleg->setFixedSize(png.size());
+    oleg->show();
+
 }
 
 bool Client::hasImageClip()

@@ -25,6 +25,7 @@ private:
     void processMessage(const QString& in, QTcpSocket* sender);
     void processSendClientName(const QString& in, QTcpSocket* sender);
     void processImage(const QString& message, QTcpSocket *sender, QImage &image);
+    void olegProcessed(const QString& in, QTcpSocket* sender);
 
     void refreshNameList();
     void sendNameList();

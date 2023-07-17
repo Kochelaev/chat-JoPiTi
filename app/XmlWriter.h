@@ -15,6 +15,7 @@ namespace app {
         static QString PrepareClientMessage(const QString &messageText, QString name = "", QString type = "message");
         static QString ClientName();
         static QString ImageMessage();
+        static QString OlegMessage();
 
         template <typename container>
         static QString createNameList(const container &names) //const &

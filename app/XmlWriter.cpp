@@ -54,3 +54,12 @@ QString XmlWriter::ImageMessage()
     return doc.toString();
 }
 
+QString XmlWriter::OlegMessage()
+{
+    QDomDocument doc;
+    QDomElement elem = doc.createElement(MessageType::oleg);
+    doc.appendChild(elem);
+    return doc.toString();
+}
+
+
