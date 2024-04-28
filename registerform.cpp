@@ -53,7 +53,7 @@ void RegisterForm::on_OkButton_clicked()
     }
 }
 
-void RegisterForm::closeEvent(QCloseEvent *event)
+void RegisterForm::closeEvent(QCloseEvent *)
 {
     emit(signalChangeName());
 }

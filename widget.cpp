@@ -110,13 +110,16 @@ void Widget::slotChangeName()
 
 void Widget::slotChangeSide()
 {
+    static bool isDarkSide = User::instance().isDarkSide();
     QString cssPath;
-    if (User::instance().isDarkSide()) {
+    if (isDarkSide) {
         User::instance().setDarkSide(false);
+        isDarkSide = false;
         m_darkSideButton->setText("Перейти на темную сторону");
         cssPath = ":/css/style.css";
     } else  {
         User::instance().setDarkSide(true);
+        isDarkSide = true;
         m_darkSideButton->setText("Перейти на светлую сторону");
         cssPath = ":/css/darkSide.css";
     }

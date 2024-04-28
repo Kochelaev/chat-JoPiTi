@@ -15,7 +15,7 @@ private:
     QTextEdit* m_ptxt;
     quint16 m_nNExtBlockSize;
     QTextEdit* m_nameList;
-    QVector<QTcpSocket*> activeConnections;  // по сути, можно отказаться в пользу Qmap
+    QVector<QTcpSocket*> activeConnections;
     QMap<QTcpSocket*, QString> clientNames;
 
 private:
@@ -24,8 +24,8 @@ private:
     void requestProcessing(const QString& in, QTcpSocket* sender, QImage image = QImage());
     void processMessage(const QString& in, QTcpSocket* sender);
     void processSendClientName(const QString& in, QTcpSocket* sender);
-    void processImage(const QString& message, QTcpSocket *sender, QImage &image);
-    void olegProcessed(const QString& in, QTcpSocket* sender);
+    void processImage(QTcpSocket *sender, QImage &image);
+    void olegProcessed(const QString& in);
 
     void refreshNameList();
     void sendNameList();

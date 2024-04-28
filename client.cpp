@@ -13,20 +13,22 @@
 using namespace app;
 using namespace Enum;
 
-Client::Client(const QString& strHost, int nPort, QWidget* parent /*= nullptr*/)
+Client::Client(const QString& strHost, quint16 nPort, QWidget* parent /*= nullptr*/)
     : QWidget(parent)
 {
     setAccessibleName("Client");
 
+    m_host = strHost;
+    m_port = nPort;
     m_nNExtBlockSize = 0;
-    m_pTcpSocket = new QTcpSocket(this);
 
-    m_messageList = new QTextBrowser();
-    m_textEdit = new QTextEdit();
-    m_pushButton = new QPushButton();
-    m_attachFileButton = new QPushButton();
-    m_nameList = new QListWidget();
-    m_splitter = new QSplitter(Qt::Horizontal);
+    m_pTcpSocket = new QTcpSocket(this);
+    m_messageList = new QTextBrowser(this);
+    m_textEdit = new QTextEdit(this);
+    m_pushButton = new QPushButton(this);
+    m_attachFileButton = new QPushButton(this);
+    m_nameList = new QListWidget(this);
+    m_splitter = new QSplitter(Qt::Horizontal, this);
 
     m_pTcpSocket->connectToHost(strHost, nPort);
     connect(m_pTcpSocket, SIGNAL(connected()), SLOT(slotConnected()));
@@ -115,18 +117,39 @@ void Client::slotError(QAbstractSocket::SocketError err)
                             QString(m_pTcpSocket->errorString())
     );
 
+    m_messageList->clear();
     m_messageList->append(strError);
+
+    m_nameList->clear();
+
+    if (m_reconnectButton == nullptr) {
+        m_reconnectButton = new QPushButton("Переподключится");
+        QBoxLayout* layout = new QBoxLayout(QBoxLayout::TopToBottom);
+        layout->addWidget(m_reconnectButton, 0, Qt::AlignCenter);
+        m_messageList->setLayout(layout);
+        connect(m_reconnectButton, SIGNAL(clicked()), this, SLOT(slotReconnect()));
+    }
+    m_reconnectButton->show();
 }
 
 void Client::slotConnected()
 {
+    m_messageList->clear();
+    if (m_reconnectButton != nullptr) {
+        m_reconnectButton->hide();
+    }
     QString xmlClientName = XmlWriter::ClientName();
     sendToServer(xmlClientName);
 }
 
 void Client::slotAttachFile()
 {
-    QString filename = QFileDialog::getOpenFileName(0, "Выберите изображение", "", "*.png *.jpg *.jpeg *.bmp").toUtf8();
+    QString filename = QFileDialog::getOpenFileName(
+            0,
+            "Выберите изображение",
+            "",
+            "*.png *.jpg *.jpeg *.bmp"
+    ).toUtf8();
 
     if (!filename.isEmpty()) {
         this->sendImage(QImage(filename));
@@ -148,6 +171,7 @@ void Client::slotOpenLink(QUrl url)
     }
 
     QWidget* imgWidget = new QWidget();
+    imgWidget->setAttribute(Qt::WA_StaticContents);
     imgWidget->setStyleSheet("* {background-color: none;}");
     QPalette pal;
     pal.setBrush(imgWidget->backgroundRole(), QBrush(img));
@@ -159,12 +183,16 @@ void Client::slotOpenLink(QUrl url)
     imgWidget->show();
 }
 
+void Client::slotReconnect()
+{
+    m_pTcpSocket->disconnectFromHost();
+    m_pTcpSocket->connectToHost(m_host, m_port);
+}
+
 void Client::sendToServer(QString message, QImage image)
 {
     QByteArray arrBlock;
     QDataStream out (&arrBlock, QIODevice::WriteOnly);
-
-    QImage testImage(":/img/user.png"); ///!!!!
 
     out.setVersion(QDataStream::Qt_5_11);
     out << quint16(0) << QTime::currentTime() << message << image; // !!!!!
@@ -175,7 +203,7 @@ void Client::sendToServer(QString message, QImage image)
     m_pTcpSocket->write(arrBlock);
 }
 
-bool Client::eventFilter(QObject *obj, QEvent *event) //textEdit pressEnter event
+bool Client::eventFilter(QObject* ,QEvent *event) //textEdit pressEnter event
 {
     if (event->type() == QEvent::Type::KeyPress) {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
@@ -261,25 +289,24 @@ void Client::imageProcessed(const QString &message, QImage &image)
 {
     QString htmlMessage = app::XmlReader::getHtmlMessage(message, MessageType::image);
 
-    QString name = app::XmlReader::getClientName(message, MessageType::image);
-    QString time = app::XmlReader::getMessageTime(message, MessageType::image);
-
-    QString filePath = QApplication::applicationDirPath()+QDir::separator() +
-            "Data" + QDir::separator() + QDate::currentDate().toString(Qt::SystemLocaleShortDate)
-            + name + time + ".png";
-
-    QFile file;
-    if (file.open(QIODevice::WriteOnly)) {
-        file.close();
-    }
-    //исправь, объедини с filePath
-    QString dirname = QApplication::applicationDirPath() + QDir::separator() + "Data";
+    QString dirname = QApplication::applicationDirPath() + "/" + "Data";
     QDir fileDir (dirname);
     if(!fileDir.exists(dirname)) {
         fileDir.mkdir(dirname);
     }
 
-    image.save(filePath, "png");
+    QString name = app::XmlReader::getClientName(message, MessageType::image);
+    QString time = app::XmlReader::getMessageTime(message, MessageType::image);
+    time.replace(":", "_");
+    QString filePath = dirname + QDir::separator() + time + ".png";
+
+    QFile file(filePath);
+
+    if (!file.open(QIODevice::WriteOnly)) {
+        qDebug() << "fail: " << filePath;
+        return ;
+    }
+    image.save(&file, "png");
 
     int imgHeight = image.height();
     int imgWidth = image.width();
@@ -296,9 +323,11 @@ void Client::imageProcessed(const QString &message, QImage &image)
             "\" width=\"" + QString::number(imgWidth)+ "\"/></p></a>";
 
     m_messageList->append(htmlMessage);
+
+    file.close();
 }
 
-void Client::enterEvent(QEvent *event)
+void Client::enterEvent(QEvent *)
 {
     Tray::instance().emitMessageClick();
 }

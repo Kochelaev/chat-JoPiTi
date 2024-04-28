@@ -29,15 +29,15 @@ Server::Server(int nPort, QWidget* pwgt /*= 0*/) : QWidget(pwgt)
 
     connect(m_ptcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
 
-    m_ptxt = new QTextEdit;
+    m_ptxt = new QTextEdit(this);
     m_ptxt->setReadOnly(true);
 
-    m_nameList = new QTextEdit("<H4>Пользователи в сети: <br></H4>");
+    m_nameList = new QTextEdit("<H4>Пользователи в сети: <br></H4>", this);
     m_nameList->setReadOnly(true);
 
     //layout setup
-    QVBoxLayout* pvbxLayout = new QVBoxLayout;
-    pvbxLayout->addWidget(new QLabel("<H1>Сервер</H1>"));
+    QVBoxLayout* pvbxLayout = new QVBoxLayout(this);
+    pvbxLayout->addWidget(new QLabel("<H1>Сервер</H1>", this));
     pvbxLayout->addWidget(m_nameList);
     pvbxLayout->addWidget(m_ptxt);
     setLayout(pvbxLayout);
@@ -58,7 +58,12 @@ Server::~Server()
 
 void Server::slotReadClient()
 {
-    QTcpSocket* pClientSocket = (QTcpSocket*)sender();
+    QObject * signalSender = sender();
+    QTcpSocket* pClientSocket = qobject_cast<QTcpSocket*>(signalSender);
+    if (!pClientSocket) {
+        return;
+    }
+
     QDataStream in (pClientSocket);
 
     in.setVersion(QDataStream::Qt_5_11);
@@ -118,9 +123,9 @@ void Server::requestProcessing(const QString &in, QTcpSocket* sender, QImage ima
     }else if (messageType == Enum::MessageType::message) {
         this->processMessage(in, sender);
     } else if (messageType == Enum::MessageType::image) {
-        this->processImage(in, sender, image);
+        this->processImage(sender, image);
     } else if (messageType == Enum::MessageType::oleg) {
-        this->olegProcessed(in, sender);
+        this->olegProcessed(in);
     }
 }
 
@@ -143,7 +148,7 @@ void Server::processSendClientName(const QString &in, QTcpSocket *sender)
     sendNameList();
 }
 
-void Server::processImage(const QString &message, QTcpSocket *sender, QImage &image)
+void Server::processImage(QTcpSocket *sender, QImage &image)
 {
     QString name = clientNames[sender];
     QString HtmlMessage = app::XmlWriter::PrepareClientMessage("", name, Enum::MessageType::image);
@@ -151,7 +156,7 @@ void Server::processImage(const QString &message, QTcpSocket *sender, QImage &im
     sendToAll(HtmlMessage, image);
 }
 
-void Server::olegProcessed(const QString &in, QTcpSocket *sender)
+void Server::olegProcessed(const QString &in)
 {
     sendToAll(in);
 }

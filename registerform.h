@@ -30,7 +30,7 @@ public slots:
     void on_OkButton_clicked();
 
 protected:
-    virtual void closeEvent(QCloseEvent *event);
+    virtual void closeEvent(QCloseEvent *);
     virtual void keyPressEvent(QKeyEvent *event);
 
 };
