@@ -106,5 +106,5 @@ void app::Tray::slotQuit()
 
 void Tray::slotMessageClick()
 {
-    m_icon->showMessage("", "", QSystemTrayIcon::NoIcon, 0);
+    m_icon->activated(QSystemTrayIcon::ActivationReason::Trigger);
 }

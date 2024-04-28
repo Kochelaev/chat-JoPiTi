@@ -3,6 +3,8 @@
 
 #include <QSystemTrayIcon>
 #include <QLabel>
+#include <QMenu>
+
 namespace app {
 
     class Tray : public QWidget
